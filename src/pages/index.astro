@@ -1,20 +1,20 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { TheTodoList } from "../cloudstate/todo-list";
+// import { TheTodoList } from "../cloudstate/todo-list";
+import { InfiniteCraftState } from "../cloudstate/infinite-craft.ts";
 import { useCloud } from "freestyle-sh";
 
-// import TodoList from "../components/svelte/TodoList.svelte";
-import TodoList from "../components/react/todo-list";
+import InfiniteCraft from "../components/react/infinite-craft";
 
-const todoList = useCloud<typeof TheTodoList>("todo-list");
-const items = await todoList.getItems();
+const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
+const words = await icState.getWords();
 ---
 
-<Layout title="Freestyle Astro">
+<Layout title="Freestyle Infinite Craft">
   <main>
     <div>
-      <h1>freestyle.sh – Astro</h1>
-      <TodoList client:load items={items} />
+      <h1>Infinite Craft - built with Freestyle</h1>
+      <InfiniteCraft client:load words={words} />
     </div>
   </main>
 </Layout>
