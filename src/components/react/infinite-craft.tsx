@@ -28,7 +28,7 @@ function ChipList(props: InfiniteCraftAppProps) {
 	});
 	const { isPending: isCrafting, mutate: craftWord } = useMutation({
 		mutationFn: ({ a, b }: { a: EmojiWord, b: EmojiWord }) => icState.craftWord(a, b),
-		onError: (error) => console.error('Error crafting word:', error),
+		// onError: (error) => console.error('Error crafting word:', error),
 		onSuccess: () => refetch(),
 	});
 

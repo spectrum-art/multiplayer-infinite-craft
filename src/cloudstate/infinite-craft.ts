@@ -1,15 +1,21 @@
 import { cloudstate } from "freestyle-sh";
 import Anthropic from "@anthropic-ai/sdk";
 import { EmojiWord } from "./emoji-word";
-import type { Message, TextBlock } from "@anthropic-ai/sdk/resources/messages.mjs";
-import { INFINITE_CRAFT_PROMPT } from "../prompts/infinite-craft-prompt";
+import type { Message } from "@anthropic-ai/sdk/resources/messages.mjs";
+import { ICPrompts } from "../prompts/infinite-craft-prompt";
 
 const anthropic = new Anthropic();
 
-interface GenWordDetails {
-	possible_texts: string[];
-	randomly_chosen_text: string;
-	relevant_emojis: string[];
+interface PossibleNouns {
+	natural_thing: string;
+	human_thing: string;
+	occupation: string;
+	famous_person: string;
+	logic_ranking: string[];
+}
+
+interface SelectedEmoji {
+	all_relevant_emojis: string[];
 	best_emoji: string;
 }
 
@@ -17,12 +23,6 @@ enum ICSortMode {
 	Alphabetical,
 	Emoji,
 	Time,
-}
-
-function getFirstEmoji(text: string): string {
-    const emojiRegex = /([\u2300-\u27BF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|\uD83C[\uDDE6-\uDDFF]|\uD83D[\uDC00-\uDDFF]|\uD83E[\uDD00-\uDFFF])/g;
-    const match = text.match(emojiRegex);
-    return match ? match[0] : text;
 }
 
 @cloudstate
@@ -37,17 +37,17 @@ export class InfiniteCraftState {
 	async craftWord(a: EmojiWord, b: EmojiWord): Promise<EmojiWord> {
 		// Load LLM prompt, then fill existing_words variable
 		const existingWordsStr = EmojiWord.joinText(this.words, ';');
-		const icSystemPrompt = INFINITE_CRAFT_PROMPT.replaceAll('{{existing_words}}', existingWordsStr);
+		const generateNewNounPrompt = ICPrompts.GENERATE_NEW_NOUN.replaceAll('{{existing_words}}', existingWordsStr);
 
-		console.log('======== combining: =======');
+		console.log('======== combining: ========');
 		console.log(a, b)
 
 		// Prompt LLM to generate new word
-		const genWordDetailsMsg: Message = await anthropic.messages.create({
+		const possibleNounsMsg: Message = await anthropic.messages.create({
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
 			temperature: 0.5,
-			system: icSystemPrompt,
+			system: generateNewNounPrompt,
 			messages: [
 				{
 					'role': 'user',
@@ -60,22 +60,67 @@ export class InfiniteCraftState {
 				},
 			],
 		});
+		
+		// Parse possible nouns as JSON
+		const possibleNouns: PossibleNouns = JSON.parse((possibleNounsMsg.content[0] as any).text);
 
-		console.log('------?> genWordDetailsMsg', (genWordDetailsMsg.content[0] as any));
+		console.log('----> possibleNouns', possibleNouns);
+
+		// Randomly select a noun, weighted by order in logic ranking
+		const rankedNouns = possibleNouns.logic_ranking;
 		
-		// Parse LLM result as JSON
-		const genWordDetails: GenWordDetails = JSON.parse((genWordDetailsMsg.content[0] as any).text);
-		console.log('----> genWordDetails', genWordDetails);
-		const genWord: EmojiWord = {
-			text: genWordDetails.randomly_chosen_text,
-			emoji: getFirstEmoji(genWordDetails.best_emoji)};
-		
-		// Add new words to the word list
-		if (!this.words.map(word => word.text).includes(genWord.text)) {
-			this.words.push(genWord);
+		let randomlyChosenNoun;
+		const randomNum = Math.random();
+		console.log('----> randomNum', randomNum);
+		if (randomNum < 0.4) {
+			randomlyChosenNoun = rankedNouns[0];
+		} else if (randomNum < 0.75) {
+			randomlyChosenNoun = rankedNouns[1];
+		} else if (randomNum < 0.95) {
+			randomlyChosenNoun = rankedNouns[2];
+		} else {
+			randomlyChosenNoun = rankedNouns[3];
 		}
+
+		console.log('----> randomlyChosenNoun', randomlyChosenNoun);
+
+		if (this.words.map(word => word.text).includes(randomlyChosenNoun)) {
+			console.log('----> word already exists');
+			// If the randomly chosen noun already exists, return that
+			return this.words.find(word => word.text === randomlyChosenNoun)!;
+		}
+
+		// Prompt LLM to pick best emoji
+		const selectedEmojiMsg: Message = await anthropic.messages.create({
+			model: 'claude-3-haiku-20240307',
+			max_tokens: 200,
+			temperature: 0.5,
+			system: ICPrompts.PICK_BEST_EMOJI,
+			messages: [
+				{
+					'role': 'user',
+					'content': [
+						{
+							'type': 'text',
+							'text': randomlyChosenNoun,
+						},
+					],
+				},
+			],
+		});
+
+		// Parse selected emoji as JSON
+		const selectedEmoji: SelectedEmoji = JSON.parse((selectedEmojiMsg.content[0] as any).text);
+
+		const emojiWord: EmojiWord = {
+			text: randomlyChosenNoun,
+			emoji: selectedEmoji.best_emoji,
+		};
 		
-		return genWord;
+		// Add new word to the word list
+		this.words.push(emojiWord);
+		
+		return emojiWord;
 	}
 	getWords(sort: ICSortMode = ICSortMode.Alphabetical): EmojiWord[] {
 		// TODO: implement sort mode

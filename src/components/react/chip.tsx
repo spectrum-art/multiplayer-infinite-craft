@@ -10,7 +10,7 @@ export default function Chip(props: ChipProps) {
 			className='chip'
 			onClick={props.onClick}
 		>
-			{props.isSelected ? 'X' : ''} {props.text} {' '}
+			{props.isSelected ? '●' : ''} {props.text} {' '}
 		</button>
 	)
 }
