@@ -8,14 +8,15 @@ import type { InfiniteCraftState } from "../cloudstate/infinite-craft";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 
 
-interface InfiniteCraftAppProps {
+interface InitialState {
 	words: ReturnType<InfiniteCraftState["getWords"]>;
 }
 
-export default function InfiniteCraftApp(props: InfiniteCraftAppProps) {
+export default function InfiniteCraftApp(props: InitialState) {
 	const queryClient = new QueryClient();
 	return (
 		<QueryClientProvider client={queryClient}>
+			<ApiKeyInput />
 			<ChipList {...props} />
 			<style>{`
 				  .chip-container-enter {
@@ -38,10 +39,38 @@ export default function InfiniteCraftApp(props: InfiniteCraftAppProps) {
 	)
 }
 
-function ChipList(props: InfiniteCraftAppProps) {
+function ApiKeyInput() {
 	const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
 
-	const { data: words, refetch } = useQuery({
+	const [textInput, setTextInput] = useState('');
+
+	const updateApiKey = async (str: string) => {
+		await icState.updateLlmApiKey(str);
+		setTextInput('');
+	};
+
+	return (
+		<div className="flex flex-row justify-center items-center my-4">
+			<input
+				type="password"
+				className=" bg-slate-800 border border-blue-700 mr-3"
+				value={textInput}
+				onChange={(ev) => setTextInput(ev.target.value)}
+			/>
+			<button
+				className="bg-blue-900 px-2 py-1"
+				onClick={() => updateApiKey(textInput)}
+			>
+				Set API Key
+			</button>
+		</div>
+	);
+}
+
+function ChipList(props: InitialState) {
+	const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
+
+	const { data: words, refetch: refetchWords } = useQuery({
 		queryKey: ["infinite-craft", "getWords"],
 		queryFn: () => icState.getWords(),
 		initialData: props.words,
@@ -52,13 +81,15 @@ function ChipList(props: InfiniteCraftAppProps) {
 			// Reset selected chips
 			setSelectedIdxs([]);
 
-			// Shake crafted word
-			const idx = words.findIndex(word => word.text === emojiWord.text);
-			setShakingIdx(idx);
-			setTimeout(() => setShakingIdx(null), 500);
+			let idx;
+			if ((idx = words.findIndex(word => word.text === emojiWord.text)) != -1) {
+				// Matches existing word: shake its chip
+				setShakingIdx(idx);
+				setTimeout(() => setShakingIdx(null), 500);
+			}
 
 			// Refetch words
-			refetch();
+			refetchWords();
 		},
 		onError: (error) => {
 			console.error('Error crafting word:', error);

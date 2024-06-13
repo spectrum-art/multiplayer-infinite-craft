@@ -6,7 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { Message } from "@anthropic-ai/sdk/resources/messages.mjs";
 import Prompts from "../prompts/prompts";
 
-const anthropic = new Anthropic();
+let anthropic = new Anthropic();
 
 interface PossibleNouns {
 	natural_thing_or_animal: string;
@@ -24,12 +24,19 @@ interface SelectedEmoji {
 @cloudstate
 export class InfiniteCraftState {
 	static id = "infinite-craft" as const;
+
 	words: EmojiWord[] = [
 		{text: 'Water', emoji: '💧'},
 		{text: 'Fire', emoji: '🔥'},
 		{text: 'Wind', emoji: '🌬️'},
 		{text: 'Earth', emoji: '🌍'},
 	];
+
+	updateLlmApiKey(apiKey: string) {
+		process.env.ANTHROPIC_API_KEY = apiKey;
+		anthropic = new Anthropic();
+	}
+
 	async craftWord(a: EmojiWord, b: EmojiWord): Promise<EmojiWord> {
 		console.log('\n======== Crafting: ========');
 		console.log(a, b)
@@ -114,6 +121,7 @@ export class InfiniteCraftState {
 		
 		return emojiWord;
 	}
+
 	getWords(): EmojiWord[] {
 		return this.words;
 	}
