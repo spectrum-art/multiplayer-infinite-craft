@@ -19,12 +19,6 @@ interface SelectedEmoji {
 	single_best_emoji: string;
 }
 
-enum ICSortMode {
-	Alphabetical,
-	Emoji,
-	Time,
-}
-
 @cloudstate
 export class InfiniteCraftState {
 	static id = "infinite-craft" as const;
@@ -127,8 +121,7 @@ export class InfiniteCraftState {
 		
 		return emojiWord;
 	}
-	getWords(sort: ICSortMode = ICSortMode.Alphabetical): EmojiWord[] {
-		// TODO: implement sort mode
+	getWords(): EmojiWord[] {
 		return this.words;
 	}
 }
