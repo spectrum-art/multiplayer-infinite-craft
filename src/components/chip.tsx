@@ -1,9 +1,9 @@
 interface ChipProps {
 	text: string;
 	isSelected: boolean;
-	onClick: () => void | undefined;
 	isShaking?: boolean;
 	disabled?: boolean;
+	onClick: () => void | undefined;
 }
 
 export default function Chip(props: ChipProps) {

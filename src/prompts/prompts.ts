@@ -1,4 +1,4 @@
-export class ICPrompts {
+export default class Prompts {
 	static GENERATE_NEW_NOUN: string = `
 	# Task
 	You are a highly creative noun combiner.

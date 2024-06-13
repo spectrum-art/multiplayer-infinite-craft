@@ -1,8 +1,10 @@
 import { cloudstate } from "freestyle-sh";
-import Anthropic from "@anthropic-ai/sdk";
 import { EmojiWord } from "./emoji-word";
+import { getFirstEmoji } from "../helpers/emoji-strings";
+
+import Anthropic from "@anthropic-ai/sdk";
 import type { Message } from "@anthropic-ai/sdk/resources/messages.mjs";
-import { ICPrompts } from "../prompts/infinite-craft-prompt";
+import Prompts from "../prompts/prompts";
 
 const anthropic = new Anthropic();
 
@@ -19,13 +21,6 @@ interface SelectedEmoji {
 	best_emoji: string;
 }
 
-const getFirstEmoji = (str: string): string => {
-	const emojiRegex = /[\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/u;
-	const match = str.match(emojiRegex);
-	console.log(`from ${str} got ${match}`);
-	return match ? match[0] : str;
-}
-
 @cloudstate
 export class InfiniteCraftState {
 	static id = "infinite-craft" as const;
@@ -36,7 +31,7 @@ export class InfiniteCraftState {
 		{text: 'Earth', emoji: '🌍'},
 	];
 	async craftWord(a: EmojiWord, b: EmojiWord): Promise<EmojiWord> {
-		console.log('======== combining: ========');
+		console.log('\n======== Crafting: ========');
 		console.log(a, b)
 
 		// Prompt LLM to generate new word
@@ -44,7 +39,7 @@ export class InfiniteCraftState {
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
 			temperature: 0.5,
-			system: ICPrompts.GENERATE_NEW_NOUN,
+			system: Prompts.GENERATE_NEW_NOUN,
 			messages: [
 				{
 					'role': 'user',
@@ -92,7 +87,7 @@ export class InfiniteCraftState {
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
 			temperature: 0,
-			system: ICPrompts.PICK_BEST_EMOJI,
+			system: Prompts.PICK_BEST_EMOJI,
 			messages: [
 				{
 					'role': 'user',

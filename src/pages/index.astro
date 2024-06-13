@@ -3,13 +3,13 @@ import Layout from "../layouts/Layout.astro";
 import { InfiniteCraftState } from "../cloudstate/infinite-craft.ts";
 import { useCloud } from "freestyle-sh";
 
-import InfiniteCraft from "../components/react/infinite-craft";
+import InfiniteCraft from "../components/app.tsx";
 
 const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
 const words = await icState.getWords();
 ---
 
-<Layout title="Freestyle Infinite Craft">
+<Layout title="Freestyle - Infinite Craft">
   <main>
     <div>
       <h1 class="mx-6 text-center">Infinite Craft - built with Freestyle</h1>

@@ -1,10 +1,12 @@
-import { useCloud } from "freestyle-sh";
-import { EmojiWord } from "../../cloudstate/emoji-word";
-import type { InfiniteCraftState } from "../../cloudstate/infinite-craft";
-import Chip from "./chip";
 import { useState } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import Chip from "./chip";
+
+import { useCloud } from "freestyle-sh";
+import { EmojiWord } from "../cloudstate/emoji-word";
+import type { InfiniteCraftState } from "../cloudstate/infinite-craft";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
+
 
 interface InfiniteCraftAppProps {
 	words: ReturnType<InfiniteCraftState["getWords"]>;
