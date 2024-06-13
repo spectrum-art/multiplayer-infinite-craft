@@ -1,4 +1,5 @@
 ---
+import "../styles/global.css";
 import Layout from "../layouts/Layout.astro";
 // import { TheTodoList } from "../cloudstate/todo-list";
 import { InfiniteCraftState } from "../cloudstate/infinite-craft.ts";
@@ -13,7 +14,7 @@ const words = await icState.getWords();
 <Layout title="Freestyle Infinite Craft">
   <main>
     <div>
-      <h1>Infinite Craft - built with Freestyle</h1>
+      <h1 class="mx-6 text-center">Infinite Craft - built with Freestyle</h1>
       <InfiniteCraft client:load words={words} />
     </div>
   </main>
