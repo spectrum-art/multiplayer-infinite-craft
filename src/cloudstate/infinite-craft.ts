@@ -7,8 +7,8 @@ import { ICPrompts } from "../prompts/infinite-craft-prompt";
 const anthropic = new Anthropic();
 
 interface PossibleNouns {
-	natural_thing: string;
-	human_thing: string;
+	natural_thing_or_animal: string;
+	humanmade_thing_or_product: string;
 	occupation: string;
 	famous_person: string;
 	logic_ranking: string[];
@@ -16,7 +16,14 @@ interface PossibleNouns {
 
 interface SelectedEmoji {
 	all_relevant_emojis: string[];
-	single_best_emoji: string;
+	best_emoji: string;
+}
+
+const getFirstEmoji = (str: string): string => {
+	const emojiRegex = /[\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/u;
+	const match = str.match(emojiRegex);
+	console.log(`from ${str} got ${match}`);
+	return match ? match[0] : str;
 }
 
 @cloudstate
@@ -29,10 +36,6 @@ export class InfiniteCraftState {
 		{text: 'Earth', emoji: '🌍'},
 	];
 	async craftWord(a: EmojiWord, b: EmojiWord): Promise<EmojiWord> {
-		// Load LLM prompt, then fill existing_words variable
-		const existingWordsStr = EmojiWord.joinText(this.words, ';');
-		const generateNewNounPrompt = ICPrompts.GENERATE_NEW_NOUN.replaceAll('{{existing_words}}', existingWordsStr);
-
 		console.log('======== combining: ========');
 		console.log(a, b)
 
@@ -41,7 +44,7 @@ export class InfiniteCraftState {
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
 			temperature: 0.5,
-			system: generateNewNounPrompt,
+			system: ICPrompts.GENERATE_NEW_NOUN,
 			messages: [
 				{
 					'role': 'user',
@@ -58,14 +61,14 @@ export class InfiniteCraftState {
 		// Parse possible nouns as JSON
 		const possibleNouns: PossibleNouns = JSON.parse((possibleNounsMsg.content[0] as any).text);
 
-		console.log('----> possibleNouns', possibleNouns);
+		console.log('possibleNouns', possibleNouns);
 
 		// Randomly select a noun, weighted by order in logic ranking
 		const rankedNouns = possibleNouns.logic_ranking;
 		
 		let randomlyChosenNoun;
 		const randomNum = Math.random();
-		console.log('----> randomNum', randomNum);
+		console.log('randomNum', randomNum);
 		if (randomNum < 0.4) {
 			randomlyChosenNoun = rankedNouns[0];
 		} else if (randomNum < 0.75) {
@@ -76,16 +79,11 @@ export class InfiniteCraftState {
 			randomlyChosenNoun = rankedNouns[3];
 		}
 
-		console.log('----> randomlyChosenNoun', randomlyChosenNoun);
+		console.log('randomlyChosenNoun', randomlyChosenNoun);
 
-		if (randomlyChosenNoun.split(' ').length > 2) {
-			// Randomly chosen noun is too long
-			console.error('----> noun too long');
-			throw new Error(`Noun exceeds 2-word limit: ${randomlyChosenNoun}`);
-		}
 		if (this.words.map(word => word.text).includes(randomlyChosenNoun)) {
 			// Randomly chosen noun already exists
-			console.log('----> word already exists');
+			console.log('word already exists');
 			return this.words.find(word => word.text === randomlyChosenNoun)!;
 		}
 
@@ -93,7 +91,7 @@ export class InfiniteCraftState {
 		const selectedEmojiMsg: Message = await anthropic.messages.create({
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
-			temperature: 0.5,
+			temperature: 0,
 			system: ICPrompts.PICK_BEST_EMOJI,
 			messages: [
 				{
@@ -113,7 +111,7 @@ export class InfiniteCraftState {
 
 		const emojiWord: EmojiWord = {
 			text: randomlyChosenNoun,
-			emoji: selectedEmoji.single_best_emoji,
+			emoji: getFirstEmoji(selectedEmoji.best_emoji),
 		};
 		
 		// Add new word to the word list
