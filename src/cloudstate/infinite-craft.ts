@@ -1,5 +1,5 @@
 import { cloudstate } from "freestyle-sh";
-import { EmojiWord } from "./emoji-word";
+import { EmojiNoun as EmojiNoun } from "./emoji-noun";
 import { getFirstEmoji } from "../helpers/emoji-strings";
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -25,7 +25,7 @@ interface SelectedEmoji {
 export class InfiniteCraftState {
 	static id = "infinite-craft" as const;
 
-	words: EmojiWord[] = [
+	nouns: EmojiNoun[] = [
 		{text: 'Water', emoji: '💧'},
 		{text: 'Fire', emoji: '🔥'},
 		{text: 'Wind', emoji: '🌬️'},
@@ -37,11 +37,8 @@ export class InfiniteCraftState {
 		anthropic = new Anthropic();
 	}
 
-	async craftWord(a: EmojiWord, b: EmojiWord): Promise<EmojiWord> {
-		console.log('\n======== Crafting: ========');
-		console.log(a, b)
-
-		// Prompt LLM to generate new word
+	async craftNoun(a: EmojiNoun, b: EmojiNoun): Promise<EmojiNoun> {
+		// Prompt LLM to generate new noun
 		const possibleNounsMsg: Message = await anthropic.messages.create({
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
@@ -53,7 +50,7 @@ export class InfiniteCraftState {
 					'content': [
 						{
 							'type': 'text',
-							'text': EmojiWord.joinText([a, b], ';'),
+							'text': EmojiNoun.joinText([a, b], ';'),
 						},
 					],
 				},
@@ -63,30 +60,23 @@ export class InfiniteCraftState {
 		// Parse possible nouns as JSON
 		const possibleNouns: PossibleNouns = JSON.parse((possibleNounsMsg.content[0] as any).text);
 
-		console.log('possibleNouns', possibleNouns);
-
 		// Randomly select a noun, weighted by order in logic ranking
 		const rankedNouns = possibleNouns.logic_ranking;
 		
-		let randomlyChosenNoun;
+		let randomlyChosenNoun: string = '';
+		const cum_prob = [0.4, 0.75, 0.95, 1];
 		const randomNum = Math.random();
-		console.log('randomNum', randomNum);
-		if (randomNum < 0.4) {
-			randomlyChosenNoun = rankedNouns[0];
-		} else if (randomNum < 0.75) {
-			randomlyChosenNoun = rankedNouns[1];
-		} else if (randomNum < 0.95) {
-			randomlyChosenNoun = rankedNouns[2];
-		} else {
-			randomlyChosenNoun = rankedNouns[3];
+		for (let i = 0; i < 4; i++) {
+			if (randomNum <= cum_prob[i]) {
+				randomlyChosenNoun = rankedNouns[i];
+				break;
+			}
 		}
 
-		console.log('randomlyChosenNoun', randomlyChosenNoun);
-
-		if (this.words.map(word => word.text).includes(randomlyChosenNoun)) {
+		if (this.nouns.map(nouns => nouns.text).includes(randomlyChosenNoun)) {
 			// Randomly chosen noun already exists
-			console.log('word already exists');
-			return this.words.find(word => word.text === randomlyChosenNoun)!;
+			console.log('Noun already exists');
+			return this.nouns.find(noun => noun.text === randomlyChosenNoun)!;
 		}
 
 		// Prompt LLM to pick best emoji
@@ -111,18 +101,18 @@ export class InfiniteCraftState {
 		// Parse selected emoji as JSON
 		const selectedEmoji: SelectedEmoji = JSON.parse((selectedEmojiMsg.content[0] as any).text);
 
-		const emojiWord: EmojiWord = {
+		const emojiNoun: EmojiNoun = {
 			text: randomlyChosenNoun,
 			emoji: getFirstEmoji(selectedEmoji.best_emoji),
 		};
 		
-		// Add new word to the word list
-		this.words.push(emojiWord);
+		// Add new noun to the noun list
+		this.nouns.push(emojiNoun);
 		
-		return emojiWord;
+		return emojiNoun;
 	}
 
-	getWords(): EmojiWord[] {
-		return this.words;
+	getNouns(): EmojiNoun[] {
+		return this.nouns;
 	}
 }

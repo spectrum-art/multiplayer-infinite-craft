@@ -3,13 +3,13 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Chip from "./chip";
 
 import { useCloud } from "freestyle-sh";
-import { EmojiWord } from "../cloudstate/emoji-word";
+import { EmojiNoun } from "../cloudstate/emoji-noun";
 import type { InfiniteCraftState } from "../cloudstate/infinite-craft";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 
 
 interface InitialState {
-	words: ReturnType<InfiniteCraftState["getWords"]>;
+	nouns: ReturnType<InfiniteCraftState["getNouns"]>;
 }
 
 export default function InfiniteCraftApp(props: InitialState) {
@@ -70,29 +70,29 @@ function ApiKeyInput() {
 function ChipList(props: InitialState) {
 	const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
 
-	const { data: words, refetch: refetchWords } = useQuery({
-		queryKey: ["infinite-craft", "getWords"],
-		queryFn: () => icState.getWords(),
-		initialData: props.words,
+	const { data: nouns, refetch: refetchNouns } = useQuery({
+		queryKey: ["infinite-craft", "getNouns"],
+		queryFn: () => icState.getNouns(),
+		initialData: props.nouns,
 	});
-	const { isPending: isCrafting, mutate: craftWord } = useMutation({
-		mutationFn: ({ a, b }: { a: EmojiWord, b: EmojiWord }) => icState.craftWord(a, b),
-		onSuccess: (emojiWord) => {
+	const { isPending: isCrafting, mutate: craftNoun } = useMutation({
+		mutationFn: ({ a, b }: { a: EmojiNoun, b: EmojiNoun }) => icState.craftNoun(a, b),
+		onSuccess: (emojiNoun) => {
 			// Reset selected chips
 			setSelectedIdxs([]);
 
 			let idx;
-			if ((idx = words.findIndex(word => word.text === emojiWord.text)) != -1) {
-				// Matches existing word: shake its chip
+			if ((idx = nouns.findIndex(noun => noun.text === emojiNoun.text)) != -1) {
+				// Matches existing noun: shake its chip
 				setShakingIdx(idx);
 				setTimeout(() => setShakingIdx(null), 500);
 			}
 
-			// Refetch words
-			refetchWords();
+			// Refetch nouns
+			refetchNouns();
 		},
 		onError: (error) => {
-			console.error('Error crafting word:', error);
+			console.error('Error crafting noun:', error);
 			setSelectedIdxs([]);
 		}
 		,
@@ -112,9 +112,9 @@ function ChipList(props: InitialState) {
 		}
 
 		if (newSelectedIdxs.length === 2) {
-			// Two chips selected: craft word
-			const [a, b] = newSelectedIdxs.map(selectedIdx => words[selectedIdx]);
-			craftWord({ a, b });
+			// Two chips selected: craft noun
+			const [a, b] = newSelectedIdxs.map(selectedIdx => nouns[selectedIdx]);
+			craftNoun({ a, b });
 		}
 
 		setSelectedIdxs(newSelectedIdxs);
@@ -124,10 +124,10 @@ function ChipList(props: InitialState) {
 		<div>
 			<div className="chip-list mx-6 my-4">
 				<TransitionGroup>
-					{words.map((word, idx) =>
+					{nouns.map((noun, idx) =>
 						<CSSTransition key={idx} timeout={300} classNames="chip-container">
 							<Chip
-								text={`${word.emoji} ${word.text}`}
+								text={`${noun.emoji} ${noun.text}`}
 								isSelected={selectedIdxs.includes(idx)}
 								onClick={() => { selectChip(idx) }}
 								isShaking={shakingIdx === idx}
