@@ -25,14 +25,14 @@ export class ICPrompts {
 	`.trim();
 
 	static PICK_BEST_EMOJI: string = `
-	You are an emoji selector. Given a noun, you will output the most relevant emoji. You must write in JSON format.
+	You are an emoji selector. Given a noun, you will output all relevant emojis, followed by your choice of the single best emoji. You must write in JSON format.
 
 	# Examples
 	1.
 	Steam
-	{all_relevant_emojis:["💨","🚿","💦"],best_emoji:"💨"}
+	{all_relevant_emojis:["💨","🚿","💦"],single_best_emoji:"💨"}
 	2.
 	Bill Gates
-	{all_relevant_emojis:["👴","👨‍💻","💸","💵"],best_emoji:"💸"}
+	{all_relevant_emojis:["👴","👨‍💻","💸","💵"],single_best_emoji:"💸"}
 	`.trim();
 }

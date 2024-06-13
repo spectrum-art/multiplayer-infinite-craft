@@ -16,7 +16,7 @@ interface PossibleNouns {
 
 interface SelectedEmoji {
 	all_relevant_emojis: string[];
-	best_emoji: string;
+	single_best_emoji: string;
 }
 
 enum ICSortMode {
@@ -84,9 +84,14 @@ export class InfiniteCraftState {
 
 		console.log('----> randomlyChosenNoun', randomlyChosenNoun);
 
+		if (randomlyChosenNoun.split(' ').length > 2) {
+			// Randomly chosen noun is too long
+			console.error('----> noun too long');
+			throw new Error(`Noun exceeds 2-word limit: ${randomlyChosenNoun}`);
+		}
 		if (this.words.map(word => word.text).includes(randomlyChosenNoun)) {
+			// Randomly chosen noun already exists
 			console.log('----> word already exists');
-			// If the randomly chosen noun already exists, return that
 			return this.words.find(word => word.text === randomlyChosenNoun)!;
 		}
 
@@ -114,7 +119,7 @@ export class InfiniteCraftState {
 
 		const emojiWord: EmojiWord = {
 			text: randomlyChosenNoun,
-			emoji: selectedEmoji.best_emoji,
+			emoji: selectedEmoji.single_best_emoji,
 		};
 		
 		// Add new word to the word list
