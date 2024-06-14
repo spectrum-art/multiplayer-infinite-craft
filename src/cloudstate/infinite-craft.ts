@@ -8,6 +8,11 @@ import Prompts from "../prompts/prompts";
 
 let anthropic = new Anthropic();
 
+interface NounChoices {
+	obvious_choice: string;
+	exciting_choice: string;
+}
+
 @cloudstate
 export class InfiniteCraftState {
 	static id = "infinite-craft" as const;
@@ -55,14 +60,18 @@ export class InfiniteCraftState {
 				},
 			],
 		});
+		console.log(possibleNounsMsg.content[0]);
 		
-		// Parse best noun
-		const bestNoun: string = JSON.parse((possibleNounsMsg.content[0] as any).text)["best_choice"];
+		// Parse noun options
+		const nounChoices: NounChoices = JSON.parse((possibleNounsMsg.content[0] as any).text)
+		// Randomly select best noun, with 90% probability for obvious choice
+		const bestNoun: string = Math.random() < 0.9 ? nounChoices.obvious_choice : nounChoices.exciting_choice;
 
+		// Check if noun already exists
 		const existingNoun: EmojiNoun | undefined = this.nouns.find(noun => noun.text === bestNoun);
 		const isNew: boolean = existingNoun === undefined;
-		let result: EmojiNoun;
 		
+		let result: EmojiNoun;
 		if (isNew) {
 			// Prompt LLM to pick best emoji
 			const selectedEmojiMsg: Message = await anthropic.messages.create({
