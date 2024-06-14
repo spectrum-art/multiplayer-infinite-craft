@@ -7,7 +7,14 @@ export class EmojiNoun {
 	text: string = '';
 	emoji: string = '';
 
-	static joinText(nouns: EmojiNoun[], delimiter: string = ',') {
-		return nouns.map(noun => noun.text).join(delimiter);
+	static createKey(a: EmojiNoun, b: EmojiNoun): string {
+		return `${a.text};${b.text}`;
 	}
+}
+
+@cloudstate
+export class EmojiNounRes extends EmojiNoun {
+	static id = crypto.randomUUID();
+	
+	isNew: boolean = true;
 }

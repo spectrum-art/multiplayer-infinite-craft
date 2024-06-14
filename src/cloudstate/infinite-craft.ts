@@ -1,5 +1,5 @@
 import { cloudstate } from "freestyle-sh";
-import { EmojiNoun as EmojiNoun } from "./emoji-noun";
+import { EmojiNoun, EmojiNounRes } from "./emoji-noun";
 import { getFirstEmoji } from "../helpers/emoji-strings";
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -8,23 +8,11 @@ import Prompts from "../prompts/prompts";
 
 let anthropic = new Anthropic();
 
-interface PossibleNouns {
-	natural_thing_or_animal: string;
-	humanmade_thing_or_product: string;
-	occupation: string;
-	famous_person: string;
-	logic_ranking: string[];
-}
-
-interface SelectedEmoji {
-	all_relevant_emojis: string[];
-	best_emoji: string;
-}
-
 @cloudstate
 export class InfiniteCraftState {
 	static id = "infinite-craft" as const;
 
+	nounMap: Map<string, EmojiNoun> = new Map();
 	nouns: EmojiNoun[] = [
 		{text: 'Water', emoji: '💧'},
 		{text: 'Fire', emoji: '🔥'},
@@ -37,12 +25,23 @@ export class InfiniteCraftState {
 		anthropic = new Anthropic();
 	}
 
-	async craftNoun(a: EmojiNoun, b: EmojiNoun): Promise<EmojiNoun> {
+	async craftNoun(a: EmojiNoun, b: EmojiNoun): Promise<EmojiNounRes> {
+		// Order nouns alphabetically, for consistent keying
+		if (a.text > b.text) {
+			[a, b] = [b, a];
+		}
+
+		if (this.nounMap.has(EmojiNoun.createKey(a, b))) {
+			// Noun already exists
+			console.log('Noun already exists in map:', EmojiNoun.createKey(a, b));
+			return {...this.nounMap.get(EmojiNoun.createKey(a, b))!, isNew: false};
+		}
+
 		// Prompt LLM to generate new noun
 		const possibleNounsMsg: Message = await anthropic.messages.create({
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
-			temperature: 0.5,
+			temperature: 0,
 			system: Prompts.GENERATE_NEW_NOUN,
 			messages: [
 				{
@@ -50,66 +49,57 @@ export class InfiniteCraftState {
 					'content': [
 						{
 							'type': 'text',
-							'text': EmojiNoun.joinText([a, b], ';'),
+							'text': EmojiNoun.createKey(a, b),
 						},
 					],
 				},
 			],
 		});
 		
-		// Parse possible nouns as JSON
-		const possibleNouns: PossibleNouns = JSON.parse((possibleNounsMsg.content[0] as any).text);
+		// Parse best noun
+		const bestNoun: string = JSON.parse((possibleNounsMsg.content[0] as any).text)["best_choice"];
 
-		// Randomly select a noun, weighted by order in logic ranking
-		const rankedNouns = possibleNouns.logic_ranking;
+		const existingNoun: EmojiNoun | undefined = this.nouns.find(noun => noun.text === bestNoun);
+		const isNew: boolean = existingNoun === undefined;
+		let result: EmojiNoun;
 		
-		let randomlyChosenNoun: string = '';
-		const cum_prob = [0.4, 0.75, 0.95, 1];
-		const randomNum = Math.random();
-		for (let i = 0; i < 4; i++) {
-			if (randomNum <= cum_prob[i]) {
-				randomlyChosenNoun = rankedNouns[i];
-				break;
-			}
+		if (isNew) {
+			// Prompt LLM to pick best emoji
+			const selectedEmojiMsg: Message = await anthropic.messages.create({
+				model: 'claude-3-haiku-20240307',
+				max_tokens: 200,
+				temperature: 0,
+				system: Prompts.PICK_BEST_EMOJI,
+				messages: [
+					{
+						'role': 'user',
+						'content': [
+							{
+								'type': 'text',
+								'text': bestNoun,
+							},
+						],
+					},
+				],
+			});
+
+			// Parse best emoji
+			console.log(selectedEmojiMsg.content[0])
+			const bestEmoji: string = JSON.parse((selectedEmojiMsg.content[0] as any).text)["best_choice"];
+
+			result = {text: bestNoun, emoji: getFirstEmoji(bestEmoji)};
+			this.nouns.push(result);
+		} else {
+			// Noun already exists
+			result = existingNoun!;
 		}
 
-		if (this.nouns.map(nouns => nouns.text).includes(randomlyChosenNoun)) {
-			// Randomly chosen noun already exists
-			console.log('Noun already exists');
-			return this.nouns.find(noun => noun.text === randomlyChosenNoun)!;
-		}
-
-		// Prompt LLM to pick best emoji
-		const selectedEmojiMsg: Message = await anthropic.messages.create({
-			model: 'claude-3-haiku-20240307',
-			max_tokens: 200,
-			temperature: 0,
-			system: Prompts.PICK_BEST_EMOJI,
-			messages: [
-				{
-					'role': 'user',
-					'content': [
-						{
-							'type': 'text',
-							'text': randomlyChosenNoun,
-						},
-					],
-				},
-			],
-		});
-
-		// Parse selected emoji as JSON
-		const selectedEmoji: SelectedEmoji = JSON.parse((selectedEmojiMsg.content[0] as any).text);
-
-		const emojiNoun: EmojiNoun = {
-			text: randomlyChosenNoun,
-			emoji: getFirstEmoji(selectedEmoji.best_emoji),
-		};
+		// Add `a + b = bestNoun` to the noun map
+		this.nounMap.set(EmojiNoun.createKey(a, b), result);
+		console.log('Added noun to map:', EmojiNoun.createKey(a, b), result);
 		
-		// Add new noun to the noun list
-		this.nouns.push(emojiNoun);
-		
-		return emojiNoun;
+		// Return the response payload
+		return {...result, isNew: isNew};
 	}
 
 	getNouns(): EmojiNoun[] {

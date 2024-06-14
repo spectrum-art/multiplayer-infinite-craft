@@ -77,14 +77,14 @@ function ChipList(props: InitialState) {
 	});
 	const { isPending: isCrafting, mutate: craftNoun } = useMutation({
 		mutationFn: ({ a, b }: { a: EmojiNoun, b: EmojiNoun }) => icState.craftNoun(a, b),
-		onSuccess: (emojiNoun) => {
+		onSuccess: (emojiNounRes) => {
 			// Reset selected chips
 			setSelectedIdxs([]);
 
-			let idx;
-			if ((idx = nouns.findIndex(noun => noun.text === emojiNoun.text)) != -1) {
-				// Matches existing noun: shake its chip
-				setShakingIdx(idx);
+			if (!emojiNounRes.isNew) {
+				// Noun already exists: shake existing chip
+				const chipIdx = nouns.findIndex(noun => noun.text === emojiNounRes.text)
+				setShakingIdx(chipIdx);
 				setTimeout(() => setShakingIdx(null), 500);
 			}
 
