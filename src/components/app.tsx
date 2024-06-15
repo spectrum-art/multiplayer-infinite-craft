@@ -2,14 +2,14 @@ import { useState } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Chip from "./chip";
 
-import { useCloud, type CloudState } from "freestyle-sh";
+import { useCloud } from "freestyle-sh";
 import { EmojiNoun } from "../cloudstate/emoji-noun";
-import type { InfiniteCraftState } from "../cloudstate/infinite-craft";
+import type { RoomManagerCS, RoomInfo, RoomCS } from "../cloudstate/infinite-craft";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 
 
 interface InitialState {
-	roomId: string;
+	roomInfo: RoomInfo;
 	nouns: EmojiNoun[];
 }
 
@@ -17,7 +17,7 @@ export default function InfiniteCraftApp(props: InitialState) {
 	const queryClient = new QueryClient();
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ApiKeyInput />
+			<ApiKeyInput roomInfo={props.roomInfo} />
 			<ChipList {...props} />
 			<style>{`
 				  .chip-container-enter {
@@ -40,13 +40,13 @@ export default function InfiniteCraftApp(props: InitialState) {
 	)
 }
 
-function ApiKeyInput() {
-	const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
+function ApiKeyInput(props: { roomInfo: RoomInfo }) {
+	const room = useCloud<typeof RoomCS>(props.roomInfo.id);
 
 	const [textInput, setTextInput] = useState('');
 
 	const updateApiKey = async (str: string) => {
-		await icState.setAnthropicApiKey(str);
+		await room.setAnthropicApiKey(str);
 		setTextInput('');
 	};
 
@@ -69,20 +69,20 @@ function ApiKeyInput() {
 }
 
 function ChipList(props: InitialState) {
-	const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
+	const room = useCloud<typeof RoomCS>(props.roomInfo.id);
 
 	const { data: nouns, refetch: refetchNouns } = useQuery({
-		queryKey: ["infinite-craft", "getNouns"],
-		queryFn: () => icState.getNouns(props.roomId),
+		queryKey: ["room-manager", "getNouns"],
+		queryFn: () => room.getNouns(),
 		initialData: props.nouns,
 	});
 	const { isPending: isCrafting, mutate: craftNoun } = useMutation({
-		mutationFn: ({ a, b }: { a: EmojiNoun, b: EmojiNoun }) => icState.craftNoun(props.roomId, a, b),
+		mutationFn: ({ a, b }: { a: EmojiNoun, b: EmojiNoun }) => room.craftNoun(a, b),
 		onSuccess: (emojiNounRes) => {
 			// Reset selected chips
 			setSelectedIdxs([]);
 
-			if (!emojiNounRes.isNew) {
+			if (!emojiNounRes.isNewToRoom) {
 				// Noun already exists: shake existing chip
 				const chipIdx = nouns.findIndex(noun => noun.text === emojiNounRes.text)
 				setShakingIdx(chipIdx);

@@ -1,19 +1,19 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { InfiniteCraftState } from "../../cloudstate/infinite-craft.ts";
-import { useCloud } from "freestyle-sh";
+import { RoomCS, RoomManagerCS } from "../../cloudstate/infinite-craft";
+import { useCloud, type CloudState } from "freestyle-sh";
 
 import InfiniteCraft from "../../components/app.tsx";
 
 console.log("|astro> Loading Infinite Craft room");
-const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
+const roomManager = useCloud<typeof RoomManagerCS>("room-manager");
 console.log("|astro> Cloud state loaded");
 
 // Get the room ID from the URL
 let roomId = Astro.params.roomId ?? "";
 console.log("|astro> Room ID:", roomId);
 
-if (!(await icState.roomExists(roomId))) {
+if (!(await roomManager.roomExists(roomId))) {
   // Visit index page to create a new room
   console.log("|astro> Room does not exist");
   return Astro.redirect("/");
@@ -22,16 +22,16 @@ if (!(await icState.roomExists(roomId))) {
 console.log("|astro> Room exists");
 
 // Continue with loading the room data
-const roomNouns = await icState.getNouns(roomId);
-console.log("|astro> got room nouns");
-console.log("|astro> Room nouns:", roomNouns);
+const roomInfo = await roomManager.getRoomInfo(roomId);
+const room = useCloud<typeof RoomCS>(roomId);
+const roomNouns = await room.getNouns();
 ---
 
 <Layout title="Freestyle - Infinite Craft">
   <main>
     <div>
       <h1 class="mx-6 text-center">Infinite Craft - built with Freestyle</h1>
-      <InfiniteCraft client:load roomId={roomId} nouns={roomNouns} />
+      <InfiniteCraft client:load roomInfo={roomInfo} nouns={roomNouns} />
     </div>
   </main>
 </Layout>

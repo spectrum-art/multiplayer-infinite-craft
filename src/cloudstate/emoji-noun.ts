@@ -8,6 +8,10 @@ export class EmojiNoun {
 	emoji: string = '';
 
 	static createKey(a: EmojiNoun, b: EmojiNoun): string {
+		// Order nouns alphabetically, for consistent keying
+		if (a.text > b.text) {
+			[a, b] = [b, a];
+		}
 		return `${a.text};${b.text}`;
 	}
 }
@@ -16,5 +20,5 @@ export class EmojiNoun {
 export class EmojiNounRes extends EmojiNoun {
 	static id = crypto.randomUUID();
 	
-	isNew: boolean = true;
+	isNewToRoom: boolean = true;
 }

@@ -1,13 +1,13 @@
 import { useCloud } from "freestyle-sh";
 import { useState } from "react";
-import type { InfiniteCraftState } from "../cloudstate/infinite-craft";
+import type { RoomManagerCS } from "../cloudstate/infinite-craft";
 
 export default function HomePage() {
-	const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
+	const roomManager = useCloud<typeof RoomManagerCS>("room-manager");
 	const [textInput, setTextInput] = useState('');
 
 	const joinRoom = async (roomId: string) => {
-		if (!(await icState.roomExists(roomId))) {
+		if (!(await roomManager.roomExists(roomId))) {
 			console.error(`Room ${roomId} does not exist`);
 			return;
 		}
@@ -18,7 +18,7 @@ export default function HomePage() {
 
 	const createRoom = async () => {
 		console.log('|client> Creating room...');
-		const roomId = await icState.createRoom();
+		const roomId = await roomManager.createRoom();
 		console.log('|client> Room created:', roomId);
 		location.replace(`/room/${roomId}`);
 	}
