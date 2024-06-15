@@ -2,14 +2,15 @@ import { useState } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Chip from "./chip";
 
-import { useCloud } from "freestyle-sh";
+import { useCloud, type CloudState } from "freestyle-sh";
 import { EmojiNoun } from "../cloudstate/emoji-noun";
 import type { InfiniteCraftState } from "../cloudstate/infinite-craft";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 
 
 interface InitialState {
-	nouns: ReturnType<InfiniteCraftState["getNouns"]>;
+	roomId: string;
+	nouns: EmojiNoun[];
 }
 
 export default function InfiniteCraftApp(props: InitialState) {
@@ -45,7 +46,7 @@ function ApiKeyInput() {
 	const [textInput, setTextInput] = useState('');
 
 	const updateApiKey = async (str: string) => {
-		await icState.updateLlmApiKey(str);
+		await icState.setAnthropicApiKey(str);
 		setTextInput('');
 	};
 
@@ -72,11 +73,11 @@ function ChipList(props: InitialState) {
 
 	const { data: nouns, refetch: refetchNouns } = useQuery({
 		queryKey: ["infinite-craft", "getNouns"],
-		queryFn: () => icState.getNouns(),
+		queryFn: () => icState.getNouns(props.roomId),
 		initialData: props.nouns,
 	});
 	const { isPending: isCrafting, mutate: craftNoun } = useMutation({
-		mutationFn: ({ a, b }: { a: EmojiNoun, b: EmojiNoun }) => icState.craftNoun(a, b),
+		mutationFn: ({ a, b }: { a: EmojiNoun, b: EmojiNoun }) => icState.craftNoun(props.roomId, a, b),
 		onSuccess: (emojiNounRes) => {
 			// Reset selected chips
 			setSelectedIdxs([]);

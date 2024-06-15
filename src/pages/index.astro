@@ -1,47 +1,13 @@
 ---
+import HomePage from "../components/homePage";
 import Layout from "../layouts/Layout.astro";
-import { InfiniteCraftState } from "../cloudstate/infinite-craft.ts";
-import { useCloud } from "freestyle-sh";
-
-import InfiniteCraft from "../components/app.tsx";
-
-const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
-const nouns = await icState.getNouns();
 ---
 
 <Layout title="Freestyle - Infinite Craft">
   <main>
     <div>
       <h1 class="mx-6 text-center">Infinite Craft - built with Freestyle</h1>
-      <InfiniteCraft client:load nouns={nouns} />
+      <HomePage client:load />
     </div>
   </main>
 </Layout>
-
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background-color: rgb(37, 37, 44);
-  }
-
-  main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: sans-serif;
-    color: white;
-    margin-top: 2rem;
-  }
-
-  div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
-</style>

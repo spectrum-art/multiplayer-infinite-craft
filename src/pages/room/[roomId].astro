@@ -1,0 +1,65 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { InfiniteCraftState } from "../../cloudstate/infinite-craft.ts";
+import { useCloud } from "freestyle-sh";
+
+import InfiniteCraft from "../../components/app.tsx";
+
+console.log("|astro> Loading Infinite Craft room");
+const icState = useCloud<typeof InfiniteCraftState>("infinite-craft");
+console.log("|astro> Cloud state loaded");
+
+// Get the room ID from the URL
+let roomId = Astro.params.roomId ?? "";
+console.log("|astro> Room ID:", roomId);
+
+if (!(await icState.roomExists(roomId))) {
+  // Visit index page to create a new room
+  console.log("|astro> Room does not exist");
+  return Astro.redirect("/");
+}
+
+console.log("|astro> Room exists");
+
+// Continue with loading the room data
+const roomNouns = await icState.getNouns(roomId);
+console.log("|astro> got room nouns");
+console.log("|astro> Room nouns:", roomNouns);
+---
+
+<Layout title="Freestyle - Infinite Craft">
+  <main>
+    <div>
+      <h1 class="mx-6 text-center">Infinite Craft - built with Freestyle</h1>
+      <InfiniteCraft client:load roomId={roomId} nouns={roomNouns} />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(37, 37, 44);
+  }
+
+  main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    color: white;
+    margin-top: 2rem;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+</style>
