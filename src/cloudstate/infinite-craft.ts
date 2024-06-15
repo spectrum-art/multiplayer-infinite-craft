@@ -1,4 +1,4 @@
-import { cloudstate, useCloud, useLocal, type CloudState } from "freestyle-sh";
+import { cloudstate, useLocal } from "freestyle-sh";
 import { EmojiNoun, EmojiNounRes } from "./emoji-noun";
 import { getFirstEmoji } from "../helpers/emoji-strings";
 
@@ -33,8 +33,6 @@ export class RoomManagerCS {
 
 	roomsMap: Map<string, RoomCS> = new Map();
 	async roomExists(roomId: string): Promise<boolean> {
-		console.log('|cloud> Checking if room exists:', roomId)
-		console.log('|cloud> roomManager.roomsMap:', this.roomsMap)
 		return this.roomsMap.has(roomId);
 	}
 	getRoomInfo(roomId: string): RoomInfo {
@@ -49,8 +47,6 @@ export class RoomManagerCS {
 		const room = new RoomCS();
 		const roomId = room.getId();
 		this.roomsMap.set(roomId, room);
-		console.log('|cloud> Room created:', roomId);
-		console.log('|cloud> roomManager.roomsMap:', this.roomsMap)
 		return roomId;
 	}
 }
@@ -88,40 +84,35 @@ export class RoomCS {
 		return this.nouns;
 	}
 	async craftNoun(a: EmojiNoun, b: EmojiNoun): Promise<EmojiNounRes> {
-		const roomNouns: EmojiNoun[] = this.getNouns();
+		let comboResult: EmojiNoun;
+		let isNewToRoom: boolean;
+		
+		const comboKey = EmojiNoun.createKey(a, b);
 		const cache = useLocal(GlobalCacheCS);
 
-		const comboKey = EmojiNoun.createKey(a, b);
-		if (await cache.has(comboKey)) {
-			console.log('|cloud> Combo is already in global cache:', comboKey)
-			
-			// Noun from combination is already in global cache
-			const globalNoun = await cache.get(comboKey);
-			return {
-				...globalNoun,
-				isNewToRoom: !roomNouns.some(noun => noun.text === globalNoun.text),
-			};
-		}
+		if (cache.has(comboKey)) {			
+			// Take combo from global cache
+			comboResult = cache.get(comboKey);
+		} else {
+			// Generate noun choices and choose one randomly
+			const nounChoices = await RoomCS._generateNounChoices(comboKey);
+			const chosenNoun: string = Math.random() < 0.9 ? nounChoices.obvious_choice : nounChoices.exciting_choice;
 
-		// Generate noun choices and choose one randomly
-		const nounChoices = await RoomCS._generateNounChoices(comboKey);
-		const chosenNoun: string = Math.random() < 0.9 ? nounChoices.obvious_choice : nounChoices.exciting_choice;
-
-		let comboResult: EmojiNoun;
-		const isNewToRoom: boolean = !roomNouns.some(noun => noun.text === chosenNoun);
-		if (isNewToRoom) {
 			// Generate best emoji for noun
 			const bestEmoji = await RoomCS._generateBestEmoji(chosenNoun);
 			comboResult = {text: chosenNoun, emoji: getFirstEmoji(bestEmoji)};
-			roomNouns.push(comboResult);
-		} else {
-			// Noun already exists in room; don't regenerate emoji
-			comboResult = this.nouns.find(noun => noun.text === chosenNoun)!;
+
+			// Add noun to global cache
+			cache.set(comboKey, comboResult);
+		}
+		
+		// Check if noun is new to room
+		isNewToRoom = !this.nouns.some(noun => noun.text === comboResult.text);
+		if (isNewToRoom) {
+			// Add new noun to room
+			this.nouns.push(comboResult);
 		}
 
-		// Add noun to global cache
-		cache.set(comboKey, comboResult);
-		
 		// Return the response payload
 		return {...comboResult, isNewToRoom: isNewToRoom};
 	}
