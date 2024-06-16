@@ -80,10 +80,7 @@ export class RoomCS {
 	getName() {
 		return this.name;
 	}
-	
-	setAnthropicApiKey(apiKey: string) {
-		process.env.ANTHROPIC_API_KEY = apiKey;
-	}
+
 	nouns: EmojiNoun[] = [
 		{text: 'Water', emoji: '💧'},
 		{text: 'Fire', emoji: '🔥'},

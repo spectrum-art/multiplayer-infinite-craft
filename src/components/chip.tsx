@@ -11,7 +11,9 @@ export default function Chip(props: ChipProps) {
 		<button
 			className={`${props.isSelected ? 'bg-yellow-700' : props.isShaking ? 'bg-red-700' : 'bg-slate-700'} 
 			${props.isShaking ? 'shake' : ''}
-			mr-2 mb-1.5 px-2 py-0.5
+			rounded-lg
+			mr-3 mb-3.5 md:mr-2 md:mb-2 
+			px-3 py-1.5 md:px-2.5 md:py-1
 			transition duration-300 ease-in-out transform hover:scale-105`}
 			onClick={props.onClick}
 			disabled={props.disabled}

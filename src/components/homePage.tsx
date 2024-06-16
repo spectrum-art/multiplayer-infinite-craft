@@ -17,9 +17,7 @@ export default function HomePage() {
 	}
 
 	const createRoom = async () => {
-		console.log('|client> Creating room...');
 		const roomId = await roomManager.createRoom();
-		console.log('|client> Room created:', roomId);
 		location.replace(`/room/${roomId}`);
 	}
 

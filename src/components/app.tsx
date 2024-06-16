@@ -4,7 +4,7 @@ import Chip from "./chip";
 
 import { useCloud } from "freestyle-sh";
 import { EmojiNoun } from "../cloudstate/emoji-noun";
-import type { RoomManagerCS, RoomInfo, RoomCS } from "../cloudstate/infinite-craft";
+import type { RoomInfo, RoomCS } from "../cloudstate/infinite-craft";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 
 
@@ -17,7 +17,6 @@ export default function InfiniteCraftApp(props: InitialState) {
 	const queryClient = new QueryClient();
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ApiKeyInput roomInfo={props.roomInfo} />
 			<ChipList {...props} />
 			<style>{`
 				  .chip-container-enter {
@@ -40,39 +39,11 @@ export default function InfiniteCraftApp(props: InitialState) {
 	)
 }
 
-function ApiKeyInput(props: { roomInfo: RoomInfo }) {
-	const room = useCloud<typeof RoomCS>(props.roomInfo.id);
-
-	const [textInput, setTextInput] = useState('');
-
-	const updateApiKey = async (str: string) => {
-		await room.setAnthropicApiKey(str);
-		setTextInput('');
-	};
-
-	return (
-		<div className="flex flex-row justify-center items-center my-4">
-			<input
-				type="password"
-				className=" bg-slate-800 border border-blue-700 mr-3"
-				value={textInput}
-				onChange={(ev) => setTextInput(ev.target.value)}
-			/>
-			<button
-				className="bg-blue-900 px-2 py-1"
-				onClick={() => updateApiKey(textInput)}
-			>
-				Set API Key
-			</button>
-		</div>
-	);
-}
-
 function ChipList(props: InitialState) {
 	const room = useCloud<typeof RoomCS>(props.roomInfo.id);
 
 	const { data: nouns, refetch: refetchNouns } = useQuery({
-		queryKey: ["room-manager", "getNouns"],
+		queryKey: [props.roomInfo.id, "getNouns"],
 		queryFn: () => room.getNouns(),
 		initialData: props.nouns,
 	});
@@ -117,7 +88,7 @@ function ChipList(props: InitialState) {
 			<div className="chip-list mx-6 my-4">
 				<TransitionGroup>
 					{nouns.map((noun, idx) =>
-						<CSSTransition key={idx} timeout={300} classNames="chip-container">
+						<CSSTransition key={idx} timeout={500} classNames="chip-container">
 							<Chip
 								text={`${noun.emoji} ${noun.text}`}
 								isSelected={selectedIdxs.includes(idx)}
