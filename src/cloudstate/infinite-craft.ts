@@ -1,14 +1,24 @@
 import { cloudstate, useLocal } from "freestyle-sh";
 import { EmojiNoun, EmojiNounRes } from "./emoji-noun";
-import { getFirstEmoji } from "../helpers/emoji-strings";
 
 import Anthropic from "@anthropic-ai/sdk";
 import Prompts from "../prompts/prompts";
 import { getFirstText } from "../helpers/anthropic-msg";
+import { getFirstEmoji } from "../helpers/emoji-strings";
 
-interface NounChoices {
-	obvious_choice: string;
-	exciting_choice: string;
+class NounChoices {
+	obvious: EmojiNoun;
+	witty: EmojiNoun;
+	constructor(obvious: EmojiNoun, witty: EmojiNoun) {
+		this.obvious = obvious;
+		this.witty = witty;
+	}
+	static fromJson(json: any): NounChoices {
+		return {
+			obvious: json.obvious_choice,
+			witty: json.witty_choice,
+		}
+	}
 }
 
 @cloudstate
@@ -96,14 +106,11 @@ export class RoomCS {
 		} else {
 			// Generate noun choices and choose one randomly
 			const nounChoices = await RoomCS._generateNounChoices(comboKey);
-			const chosenNoun: string = Math.random() < 0.9 ? nounChoices.obvious_choice : nounChoices.exciting_choice;
-
-			// Generate best emoji for noun
-			const bestEmoji = await RoomCS._generateBestEmoji(chosenNoun);
-			comboResult = {text: chosenNoun, emoji: getFirstEmoji(bestEmoji)};
-
+			comboResult = Math.random() < 0.7 ? nounChoices.obvious : nounChoices.witty;
+			comboResult.emoji = getFirstEmoji(comboResult.emoji);
+			
 			// Add noun to global cache
-			cache.set(comboKey, comboResult);
+			cache.set(comboKey, comboResult);			
 		}
 		
 		// Check if noun is new to room
@@ -126,16 +133,6 @@ export class RoomCS {
 			system: Prompts.GENERATE_NEW_NOUN,
 			messages: [{'role': 'user','content': [{'type': 'text','text': comboKey}]}],
 		});
-		return JSON.parse(getFirstText(nounChoicesMsg));
-	}
-	static _generateBestEmoji = async (noun: string): Promise<string> => {
-		const selectedEmojiMsg = await new Anthropic().messages.create({
-			model: 'claude-3-haiku-20240307',
-			max_tokens: 200,
-			temperature: 0,
-			system: Prompts.PICK_BEST_EMOJI,
-			messages: [{'role': 'user','content': [{'type': 'text','text': noun}]}],
-		});
-		return JSON.parse(getFirstText(selectedEmojiMsg))["best_choice"];
+		return NounChoices.fromJson(JSON.parse(getFirstText(nounChoicesMsg)));
 	}
 }
