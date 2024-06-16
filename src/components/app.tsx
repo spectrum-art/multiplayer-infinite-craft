@@ -102,16 +102,7 @@ function ChipList(props: InitialState) {
 	const [selectedIdxs, setSelectedIdxs] = useState<number[]>([]);
 	const [shakingIdx, setShakingIdx] = useState<number | null>(null);
 	const selectChip = (idx: number) => {
-		let newSelectedIdxs: number[];
-
-		if (selectedIdxs.includes(idx)) {
-			// Currently selected: unselect chip
-			newSelectedIdxs = selectedIdxs.filter(selectedIdx => selectedIdx !== idx);
-		} else {
-			// Not yet selected: select chip
-			newSelectedIdxs = [...selectedIdxs, idx];
-		}
-
+		const newSelectedIdxs = [...selectedIdxs, idx];
 		if (newSelectedIdxs.length === 2) {
 			// Two chips selected: craft noun
 			const [a, b] = newSelectedIdxs.map(selectedIdx => nouns[selectedIdx]);
