@@ -6,21 +6,21 @@ Available categories: Natural Thing, Animal, Appliance, Product, Brand, Occupati
 
 # Examples
 Earth;Water
-{"obvious_choice":{text:"Plant",emoji:"🌱"},"witty_choice":{text:"Mud",emoji:"💩"}}
+{"obvious_choice":{"text":"Plant","emoji":"🌱"},"witty_choice":{"text":"Mud","emoji":"💩"}}
 Engineer;Money
-{"obvious_choice":{text:"Entrepreneur",emoji:"💼"},"witty_choice":{text:"Bill Gates",emoji:"💸"}}
+{"obvious_choice":{"text":"Entrepreneur","emoji":"💼"},"witty_choice":{"text":"Bill Gates","emoji":"💸"}}
 Mars;Steam
-{"obvious_choice":{text:"Olympus Mons",emoji:"🌋"},"witty_choice":{text:"Life",emoji:"🌍"}}
+{"obvious_choice":{"text":"Olympus Mons","emoji":"🌋"},"witty_choice":{"text":"Life","emoji":"🌍"}}
 Ash;Tree
-{"obvious_choice":{text:"Pencil",emoji:"✏️"},"witty_choice":{text:"Paper",emoji:"📄"}}
+{"obvious_choice":{"text":"Pencil","emoji":"✏️"},"witty_choice":{"text":"Paper","emoji":"📄"}}
 Mud;Water
-{"obvious_choice":{text:"Pig",emoji:"🐷"},"witty_choice":{text:"Mudbath",emoji:"🛀"}}
+{"obvious_choice":{"text":"Pig","emoji":"🐷"},"witty_choice":{"text":"Mudbath","emoji":"🛀"}}
 Computer;Plant
-{"obvious_choice":{text:"Renewable Energy",emoji:"🌞"},"witty_choice":{text:"Apple",emoji:"🍏"}}
+{"obvious_choice":{"text":"Renewable Energy","emoji":"🌞"},"witty_choice":{"text":"Apple","emoji":"🍏"}}
 iPhone;Steam
-{"obvious_choice":{text:"iCloud",emoji:"☁️"},"witty_choice":{text:"iSteam",emoji:"🚿"}}
+{"obvious_choice":{"text":"iCloud","emoji":"☁️"},"witty_choice":{"text":"iSteam","emoji":"🚿"}}
 Rain;Rainbow
-{"obvious_choice":{text:"Color",emoji:"🎨"},"witty_choice":{text:"Hope",emoji:"✨"}}
+{"obvious_choice":{"text":"Color","emoji":"🎨"},"witty_choice":{"text":"Hope","emoji":"✨"}}
 
 You must output just the JSONL.
 `.trim();
