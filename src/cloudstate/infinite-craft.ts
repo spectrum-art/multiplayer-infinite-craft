@@ -6,30 +6,18 @@ import Prompts from "../prompts/prompts";
 import { getFirstText } from "../helpers/anthropic-msg";
 import { getFirstEmoji } from "../helpers/emoji-strings";
 
-class NounChoices {
-	obvious: EmojiNoun = new EmojiNoun();
-	witty: EmojiNoun = new EmojiNoun();
-	static fromJson(json: any): NounChoices {
-		return {
-			obvious: json.obvious_choice,
-			witty: json.witty_choice,
-		}
-	}
-	static WITTY_THRESHOLD = 0.7;
-}
-
 @cloudstate
-export class GlobalCacheCS {
-	static id = "global-cache" as const;
+export class NounManagerCS {
+	static id = "noun-manager" as const;
 
 	comboKeysMap: Map<string, EmojiNoun> = new Map();
-	addComboKey(comboKey: string, noun: EmojiNoun) {
+	addKeyAndNoun(comboKey: string, noun: EmojiNoun) {
 		this.comboKeysMap.set(comboKey, noun);
 	}
-	getNounFromComboKey(comboKey: string): EmojiNoun {
+	getNoun(comboKey: string): EmojiNoun {
 		return this.comboKeysMap.get(comboKey)!;
 	}
-	hasComboKey(comboKey: string): boolean {
+	didTryCombo(comboKey: string): boolean {
 		return this.comboKeysMap.has(comboKey);
 	}
 	hasNoun(noun: EmojiNoun): boolean {
@@ -72,11 +60,11 @@ export class RoomCS {
 		let isNewToRoom: boolean;
 		
 		const comboKey = EmojiNoun.createKey(a, b);
-		const cache = useLocal(GlobalCacheCS);
+		const nounManager = useLocal(NounManagerCS);
 
-		if (cache.hasComboKey(comboKey)) {			
+		if (nounManager.didTryCombo(comboKey)) {			
 			// Take combo from global cache
-			outputNoun = cache.getNounFromComboKey(comboKey);
+			outputNoun = nounManager.getNoun(comboKey);
 			outputNoun.discovered = false;
 		} else {
 			// Generate noun choices and choose one randomly
@@ -85,10 +73,10 @@ export class RoomCS {
 			outputNoun.emoji = getFirstEmoji(outputNoun.emoji);
 
 			// Check if noun is new to global cache
-			outputNoun.discovered = !cache.hasNoun(outputNoun);
+			outputNoun.discovered = !nounManager.hasNoun(outputNoun);
 
 			// Add noun to global cache
-			cache.addComboKey(comboKey, outputNoun);
+			nounManager.addKeyAndNoun(comboKey, outputNoun);
 		}
 		
 		// Check if noun is new to room
@@ -113,4 +101,16 @@ export class RoomCS {
 		});
 		return NounChoices.fromJson(JSON.parse(getFirstText(nounChoicesMsg)));
 	}
+}
+
+class NounChoices {
+	obvious: EmojiNoun = new EmojiNoun();
+	witty: EmojiNoun = new EmojiNoun();
+	static fromJson(json: any): NounChoices {
+		return {
+			obvious: json.obvious_choice,
+			witty: json.witty_choice,
+		}
+	}
+	static WITTY_THRESHOLD = 0.7;
 }

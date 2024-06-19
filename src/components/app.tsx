@@ -101,7 +101,7 @@ function ChipList(props: InitialState) {
 					)}
 				</TransitionGroup>
 			</div>
-			{isCrafting && <div className="text-center text-xl mt-8">Crafting...</div>}
+			{isCrafting && <div className="text-center text-md text-gray-300 mt-8">Crafting...</div>}
 		</div>
 	);
 }

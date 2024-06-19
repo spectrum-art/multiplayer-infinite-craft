@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { RoomCS, RoomManagerCS } from "../../cloudstate/infinite-craft";
-import { useCloud, type CloudState } from "freestyle-sh";
+import { useCloud } from "freestyle-sh";
 import InfiniteCraft from "../../components/app.tsx";
 
 // Get the room ID from the URL
@@ -19,38 +19,34 @@ const roomNouns = await room.getNouns();
 ---
 
 <Layout title="Freestyle - Infinite Craft">
-  <main>
-    <div>
-      <h1 class="mx-6 text-center">Infinite Craft - built with Freestyle</h1>
-      <InfiniteCraft client:load roomId={roomId} nouns={roomNouns} />
+  <main class="flex justify-center items-top text-white">
+    <div class="flex flex-col justify-between items-center w-screen h-screen">
+      <div>
+        <h1 class="text-xl font-semibold mx-6 mt-8 text-center text-white">
+          Infinite Craft - built with <a
+            href="https://freestyle.sh"
+            class="underline">Freestyle</a
+          >
+        </h1>
+        <p class="text-center text-gray-300 mb-6">
+          Select any two nouns to craft a new one.
+        </p>
+        <div class="flex">
+          <InfiniteCraft client:load roomId={roomId} nouns={roomNouns} />
+        </div>
+      </div>
+      <p class="text-sm text-gray-500 my-4">
+        Inspired by the <a
+          href="https://neal.fun/infinite-craft/"
+          class="underline">original game</a
+        > created by Neal Agarwal.
+      </p>
     </div>
   </main>
 </Layout>
 
 <style>
   body {
-    margin: 0;
-    padding: 0;
-    background-color: rgb(37, 37, 44);
-  }
-
-  main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: sans-serif;
-    color: white;
-    margin-top: 2rem;
-  }
-
-  div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    @apply bg-slate-900;
   }
 </style>
