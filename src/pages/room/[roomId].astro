@@ -13,8 +13,7 @@ if (!(await roomManager.roomExists(roomId))) {
   return Astro.redirect("/");
 }
 
-// Continue with loading the room data
-const roomInfo = await roomManager.getRoomInfo(roomId);
+// Continue with fetching the room
 const room = useCloud<typeof RoomCS>(roomId);
 const roomNouns = await room.getNouns();
 ---
@@ -23,7 +22,7 @@ const roomNouns = await room.getNouns();
   <main>
     <div>
       <h1 class="mx-6 text-center">Infinite Craft - built with Freestyle</h1>
-      <InfiniteCraft client:load roomInfo={roomInfo} nouns={roomNouns} />
+      <InfiniteCraft client:load roomId={roomId} nouns={roomNouns} />
     </div>
   </main>
 </Layout>

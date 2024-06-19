@@ -7,33 +7,36 @@ import { getFirstText } from "../helpers/anthropic-msg";
 import { getFirstEmoji } from "../helpers/emoji-strings";
 
 class NounChoices {
-	obvious: EmojiNoun;
-	witty: EmojiNoun;
-	constructor(obvious: EmojiNoun, witty: EmojiNoun) {
-		this.obvious = obvious;
-		this.witty = witty;
-	}
+	obvious: EmojiNoun = new EmojiNoun();
+	witty: EmojiNoun = new EmojiNoun();
 	static fromJson(json: any): NounChoices {
 		return {
 			obvious: json.obvious_choice,
 			witty: json.witty_choice,
 		}
 	}
+	static WITTY_THRESHOLD = 0.7;
 }
 
 @cloudstate
 export class GlobalCacheCS {
 	static id = "global-cache" as const;
 
-	combosMap: Map<string, EmojiNoun> = new Map();
-	set(comboKey: string, noun: EmojiNoun) {
-		this.combosMap.set(comboKey, noun);
+	comboKeysMap: Map<string, EmojiNoun> = new Map();
+	addComboKey(comboKey: string, noun: EmojiNoun) {
+		this.comboKeysMap.set(comboKey, noun);
 	}
-	get(comboKey: string): EmojiNoun {
-		return this.combosMap.get(comboKey)!;
+	getNounFromComboKey(comboKey: string): EmojiNoun {
+		return this.comboKeysMap.get(comboKey)!;
 	}
-	has(comboKey: string): boolean {
-		return this.combosMap.has(comboKey);
+	hasComboKey(comboKey: string): boolean {
+		return this.comboKeysMap.has(comboKey);
+	}
+	hasNoun(noun: EmojiNoun): boolean {
+		if (this.comboKeysMap.size === 0) {
+			return false;
+		}
+		return Array.from(this.comboKeysMap.values()).some(n => n.text === noun.text);
 	}
 }
 
@@ -45,25 +48,12 @@ export class RoomManagerCS {
 	async roomExists(roomId: string): Promise<boolean> {
 		return this.roomsMap.has(roomId);
 	}
-	getRoomInfo(roomId: string): RoomInfo {
-		const room = this.roomsMap.get(roomId);
-		if (!room) throw new Error(`No room with id ${roomId} found.`)
-		return {
-			id: room.id,
-			name: room.name,
-		}
-	}
 	async createRoom(): Promise<string> {
 		const room = new RoomCS();
 		const roomId = room.getId();
 		this.roomsMap.set(roomId, room);
 		return roomId;
 	}
-}
-
-export interface RoomInfo {
-	id: string;
-	name: string;
 }
 
 @cloudstate
@@ -73,52 +63,43 @@ export class RoomCS {
 		return this.id;
 	}
 
-	name = '';
-	setName(name: string) {
-		this.name = name;
-	}
-	getName() {
-		return this.name;
-	}
-
-	nouns: EmojiNoun[] = [
-		{text: 'Water', emoji: '💧'},
-		{text: 'Fire', emoji: '🔥'},
-		{text: 'Wind', emoji: '🌬️'},
-		{text: 'Earth', emoji: '🌍'},
-	];
+	nouns: EmojiNoun[] = EmojiNoun.STARTING_NOUNS;
 	getNouns(): EmojiNoun[] {
 		return this.nouns;
 	}
 	async craftNoun(a: EmojiNoun, b: EmojiNoun): Promise<EmojiNounRes> {
-		let comboResult: EmojiNoun;
+		let outputNoun: EmojiNoun;
 		let isNewToRoom: boolean;
 		
 		const comboKey = EmojiNoun.createKey(a, b);
 		const cache = useLocal(GlobalCacheCS);
 
-		if (cache.has(comboKey)) {			
+		if (cache.hasComboKey(comboKey)) {			
 			// Take combo from global cache
-			comboResult = cache.get(comboKey);
+			outputNoun = cache.getNounFromComboKey(comboKey);
+			outputNoun.discovered = false;
 		} else {
 			// Generate noun choices and choose one randomly
 			const nounChoices = await RoomCS._generateNounChoices(comboKey);
-			comboResult = Math.random() < 0.7 ? nounChoices.obvious : nounChoices.witty;
-			comboResult.emoji = getFirstEmoji(comboResult.emoji);
-			
+			outputNoun = Math.random() < NounChoices.WITTY_THRESHOLD ? nounChoices.obvious : nounChoices.witty;
+			outputNoun.emoji = getFirstEmoji(outputNoun.emoji);
+
+			// Check if noun is new to global cache
+			outputNoun.discovered = !cache.hasNoun(outputNoun);
+
 			// Add noun to global cache
-			cache.set(comboKey, comboResult);			
+			cache.addComboKey(comboKey, outputNoun);
 		}
 		
 		// Check if noun is new to room
-		isNewToRoom = !this.nouns.some(noun => noun.text === comboResult.text);
+		isNewToRoom = !this.nouns.some(noun => noun.text === outputNoun.text);
 		if (isNewToRoom) {
 			// Add new noun to room
-			this.nouns.push(comboResult);
+			this.nouns.push(outputNoun);
 		}
 
-		// Return the response payload
-		return {...comboResult, isNewToRoom: isNewToRoom};
+		// Response payload
+		return {...outputNoun, isNewToRoom: isNewToRoom};
 	}
 
 	// LLM prompting

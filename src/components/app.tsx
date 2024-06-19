@@ -4,12 +4,12 @@ import Chip from "./chip";
 
 import { useCloud } from "freestyle-sh";
 import { EmojiNoun } from "../cloudstate/emoji-noun";
-import type { RoomInfo, RoomCS } from "../cloudstate/infinite-craft";
+import type { RoomCS } from "../cloudstate/infinite-craft";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 
 
 interface InitialState {
-	roomInfo: RoomInfo;
+	roomId: string;
 	nouns: EmojiNoun[];
 }
 
@@ -40,10 +40,10 @@ export default function InfiniteCraftApp(props: InitialState) {
 }
 
 function ChipList(props: InitialState) {
-	const room = useCloud<typeof RoomCS>(props.roomInfo.id);
+	const room = useCloud<typeof RoomCS>(props.roomId);
 
 	const { data: nouns, refetch: refetchNouns } = useQuery({
-		queryKey: [props.roomInfo.id, "getNouns"],
+		queryKey: [props.roomId, "getNouns"],
 		queryFn: () => room.getNouns(),
 		initialData: props.nouns,
 	});
@@ -91,6 +91,7 @@ function ChipList(props: InitialState) {
 						<CSSTransition key={idx} timeout={500} classNames="chip-container">
 							<Chip
 								text={`${noun.emoji} ${noun.text}`}
+								isStarred={noun.discovered}
 								isSelected={selectedIdxs.includes(idx)}
 								onClick={() => { selectChip(idx) }}
 								isShaking={shakingIdx === idx}
