@@ -15,7 +15,8 @@ export class NounManagerCS {
 		this.comboKeysMap.set(comboKey, noun);
 	}
 	getNoun(comboKey: string): EmojiNoun {
-		return this.comboKeysMap.get(comboKey)!;
+		// Return a copy to prevent mutation
+		return {...this.comboKeysMap.get(comboKey)!};
 	}
 	didTryCombo(comboKey: string): boolean {
 		return this.comboKeysMap.has(comboKey);

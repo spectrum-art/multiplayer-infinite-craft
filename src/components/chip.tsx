@@ -1,7 +1,7 @@
 interface ChipProps {
 	text: string;
 	isStarred?: boolean;
-	isSelected: boolean;
+	isSelected?: boolean;
 	isShaking?: boolean;
 	disabled?: boolean;
 	onClick: () => void | undefined;
