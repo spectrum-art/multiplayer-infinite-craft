@@ -1,49 +1,11 @@
 import { cloudstate, useLocal } from "freestyle-sh";
-import { EmojiNoun, EmojiNounRes } from "./emoji-noun";
+import { EmojiNoun, EmojiNounRes } from "./noun";
 
 import Anthropic from "@anthropic-ai/sdk";
 import Prompts from "../prompts/prompts";
 import { getFirstText } from "../helpers/anthropic-msg";
 import { getFirstEmoji } from "../helpers/emoji-strings";
-
-@cloudstate
-export class NounManagerCS {
-	static id = "noun-manager" as const;
-
-	comboKeysMap: Map<string, EmojiNoun> = new Map();
-	addKeyAndNoun(comboKey: string, noun: EmojiNoun) {
-		this.comboKeysMap.set(comboKey, noun);
-	}
-	getNoun(comboKey: string): EmojiNoun {
-		// Return a copy to prevent mutation
-		return {...this.comboKeysMap.get(comboKey)!};
-	}
-	didTryCombo(comboKey: string): boolean {
-		return this.comboKeysMap.has(comboKey);
-	}
-	hasNoun(noun: EmojiNoun): boolean {
-		if (this.comboKeysMap.size === 0) {
-			return false;
-		}
-		return Array.from(this.comboKeysMap.values()).some(n => n.text === noun.text);
-	}
-}
-
-@cloudstate
-export class RoomManagerCS {
-	static id = "room-manager" as const;
-
-	roomsMap: Map<string, RoomCS> = new Map();
-	async roomExists(roomId: string): Promise<boolean> {
-		return this.roomsMap.has(roomId);
-	}
-	async createRoom(): Promise<string> {
-		const room = new RoomCS();
-		const roomId = room.getId();
-		this.roomsMap.set(roomId, room);
-		return roomId;
-	}
-}
+import { NounManagerCS } from "./nounManager";
 
 @cloudstate
 export class RoomCS {

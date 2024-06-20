@@ -1,14 +1,29 @@
 import { useCloud } from "freestyle-sh";
 import { useState } from "react";
-import type { RoomManagerCS } from "../cloudstate/infinite-craft";
+import type { RoomManagerCS } from "../cloudstate/roomManager";
+import { Slide, toast, ToastContainer } from "react-toastify";
+import 'react-toastify/ReactToastify.css';
 
 export default function RoomManager() {
 	const roomManager = useCloud<typeof RoomManagerCS>("room-manager");
 	const [textInput, setTextInput] = useState('');
 
 	const joinRoom = async (roomId: string) => {
+		if (roomId.length == 0) {
+			return;
+		}
 		if (!(await roomManager.roomExists(roomId))) {
-			console.error(`Room ${roomId} does not exist`);
+			toast.error(`Room ${roomId} does not exist`, {
+				position: "bottom-right",
+				autoClose: 3000,
+				hideProgressBar: true,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+				theme: "light",
+				transition: Slide,
+				});
 			setTextInput('');
 			return;
 		}
@@ -54,6 +69,7 @@ export default function RoomManager() {
 					Create Room
 				</button>
 			</div>
-		</div >
+			<ToastContainer />
+		</div>
 	);
 }

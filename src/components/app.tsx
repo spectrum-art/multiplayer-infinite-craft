@@ -3,8 +3,8 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Chip from "./chip";
 
 import { useCloud } from "freestyle-sh";
-import { EmojiNoun } from "../cloudstate/emoji-noun";
-import type { RoomCS } from "../cloudstate/infinite-craft";
+import type { EmojiNoun } from "../cloudstate/noun";
+import type { RoomCS } from "../cloudstate/room";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
 
 

@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { RoomCS, RoomManagerCS } from "../../cloudstate/infinite-craft";
+import type { RoomCS } from "../../cloudstate/room.ts";
+import type { RoomManagerCS } from "../../cloudstate/roomManager";
 import { useCloud } from "freestyle-sh";
 import InfiniteCraft from "../../components/app.tsx";
 
