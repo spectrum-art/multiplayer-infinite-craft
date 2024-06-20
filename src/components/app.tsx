@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { useRef, useState } from "react";
+import { CSSTransition, SwitchTransition, TransitionGroup } from "react-transition-group";
 import Chip from "./chip";
+import "./app.css";
 
 import { useCloud } from "freestyle-sh";
 import type { EmojiNoun } from "../cloudstate/noun";
@@ -18,23 +19,6 @@ export default function InfiniteCraftApp(props: InitialState) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ChipList {...props} />
-			<style>{`
-				  .chip-container-enter {
-					transform: scale(0.8);
-					opacity: 0;
-				  }
-				  .shake {
-					animation: shake 0.5s;
-				  }
-				  @keyframes shake {
-					0% { transform: translate(1px, 1px) rotate(0deg); }
-					20% { transform: translate(-1px, -2px) rotate(-1deg); }
-					40% { transform: translate(-3px, 0px) rotate(1deg); }
-					60% { transform: translate(3px, 2px) rotate(0deg); }
-					80% { transform: translate(1px, -1px) rotate(1deg); }
-					100% { transform: translate(1px, 1px) rotate(0deg); }
-				  }
-            `}</style>
 		</QueryClientProvider>
 	)
 }
@@ -83,25 +67,40 @@ function ChipList(props: InitialState) {
 		setSelectedIdxs(newSelectedIdxs);
 	}
 	const hasStarted = nouns.length > 4;
-
+	const explainerRef = useRef(null);
+	const roomInfoRef = useRef(null);
+	const subheaderRef = hasStarted ? roomInfoRef : explainerRef;
 	return (
 		<div>
-			<div className="flex flex-row items-center justify-center mt-2 mb-10">
-				<p className="text-center text-gray-300">
-					{hasStarted ? props.roomId : "Select any two nouns to craft a new one."}
-				</p>
-				{hasStarted &&
-					<button className="text-gray-300 hover:text-white transition ml-2" onClick={() => {
-						navigator.clipboard.writeText(props.roomId);
-						toast.dismiss();
-						toast.success('Room ID copied to clipboard!', {
-							position: "bottom-right",
-							duration: 2000,
-						});
-					}}>
-						<svg className="" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-					</button>}
-			</div>
+			<SwitchTransition>
+				<CSSTransition
+					key={hasStarted ? "room-info" : "explainer"}
+					nodeRef={subheaderRef}
+					addEndListener={(done: any) => {
+						(subheaderRef.current as any).addEventListener("transitionend", done, false)
+					}}
+					classNames='fade'
+				>
+					<div
+						ref={subheaderRef}
+						className="flex flex-row items-center justify-center mt-2 mb-10">
+						<p className="text-center text-gray-300">
+							{hasStarted ? props.roomId : "Select any two nouns to craft a new one."}
+						</p>
+						{hasStarted &&
+							<button className="text-gray-300 hover:text-white transition ml-2" onClick={() => {
+								navigator.clipboard.writeText(props.roomId);
+								toast.dismiss();
+								toast.success('Room ID copied to clipboard!', {
+									position: "bottom-right",
+									duration: 2000,
+								});
+							}}>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+							</button>}
+					</div>
+				</CSSTransition>
+			</SwitchTransition>
 			<div className="chip-list mx-6 my-4">
 				<TransitionGroup>
 					{nouns.map((noun, idx) =>
