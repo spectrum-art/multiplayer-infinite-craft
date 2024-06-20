@@ -30,6 +30,7 @@ function ChipList(props: InitialState) {
 		queryKey: [props.roomId, "getNouns"],
 		queryFn: () => room.getNouns(),
 		initialData: props.nouns,
+		refetchInterval: 1000,
 	});
 	const { isPending: isCrafting, mutate: craftNoun } = useMutation({
 		mutationFn: ({ a, b }: { a: EmojiNoun, b: EmojiNoun }) => room.craftNoun(a, b),
