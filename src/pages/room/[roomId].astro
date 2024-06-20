@@ -29,9 +29,6 @@ const roomNouns = await room.getNouns();
             class="underline">Freestyle</a
           >
         </h1>
-        <p class="text-center text-gray-300 mt-2 mb-8">
-          Select any two nouns to craft a new one.
-        </p>
         <div class="flex">
           <InfiniteCraft client:load roomId={roomId} nouns={roomNouns} />
         </div>

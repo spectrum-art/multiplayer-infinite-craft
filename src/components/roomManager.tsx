@@ -15,7 +15,7 @@ export default function RoomManager() {
 		if (!(await roomManager.roomExists(roomId))) {
 			toast.error(`Room ${roomId} does not exist`, {
 				position: "bottom-right",
-				autoClose: 3000,
+				autoClose: 1500,
 				hideProgressBar: true,
 				closeOnClick: true,
 				pauseOnHover: true,
@@ -23,7 +23,7 @@ export default function RoomManager() {
 				progress: undefined,
 				theme: "light",
 				transition: Slide,
-				});
+			});
 			setTextInput('');
 			return;
 		}
