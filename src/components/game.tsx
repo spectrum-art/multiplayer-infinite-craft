@@ -14,7 +14,7 @@ interface InitialState {
 	nouns: EmojiNoun[];
 }
 
-export default function InfiniteCraftApp(props: InitialState) {
+export default function Game(props: InitialState) {
 	const queryClient = new QueryClient();
 	return (
 		<QueryClientProvider client={queryClient}>

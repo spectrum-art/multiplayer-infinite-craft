@@ -3,7 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import type { RoomCS } from "../../cloudstate/room.ts";
 import type { RoomManagerCS } from "../../cloudstate/roomManager";
 import { useCloud } from "freestyle-sh";
-import InfiniteCraft from "../../components/app.tsx";
+import Game from "../../components/game.tsx";
 
 // Get the room ID from the URL
 let roomId = Astro.params.roomId ?? "";
@@ -53,7 +53,7 @@ const roomNouns = await room.getNouns();
           </h1>
         </div>
         <div class="flex">
-          <InfiniteCraft client:load roomId={roomId} nouns={roomNouns} />
+          <Game client:load roomId={roomId} nouns={roomNouns} />
         </div>
       </div>
       <p class="text-sm text-gray-500 my-4">

@@ -1,5 +1,5 @@
 import { cloudstate, useLocal } from "freestyle-sh";
-import { EmojiNoun, EmojiNounRes } from "./noun";
+import { EmojiNoun, EmojiNounChoices, EmojiNounRes } from "./noun";
 
 import Anthropic from "@anthropic-ai/sdk";
 import Prompts from "../prompts/prompts";
@@ -32,7 +32,7 @@ export class RoomCS {
 		} else {
 			// Generate noun choices and choose one randomly
 			const nounChoices = await RoomCS._generateNounChoices(comboKey);
-			outputNoun = Math.random() < NounChoices.WITTY_THRESHOLD ? nounChoices.obvious : nounChoices.witty;
+			outputNoun = Math.random() < EmojiNounChoices.WITTY_THRESHOLD ? nounChoices.obvious : nounChoices.witty;
 			outputNoun.emoji = getFirstEmoji(outputNoun.emoji);
 
 			// Check if noun is new to global cache
@@ -54,7 +54,7 @@ export class RoomCS {
 	}
 
 	// LLM prompting
-	static _generateNounChoices = async (comboKey: string): Promise<NounChoices> => {
+	static _generateNounChoices = async (comboKey: string): Promise<EmojiNounChoices> => {
 		const nounChoicesMsg = await new Anthropic().messages.create({
 			model: 'claude-3-haiku-20240307',
 			max_tokens: 200,
@@ -62,18 +62,6 @@ export class RoomCS {
 			system: Prompts.GENERATE_NEW_NOUN,
 			messages: [{'role': 'user','content': [{'type': 'text','text': comboKey}]}],
 		});
-		return NounChoices.fromJson(JSON.parse(getFirstText(nounChoicesMsg)));
+		return EmojiNounChoices.fromJson(JSON.parse(getFirstText(nounChoicesMsg)));
 	}
-}
-
-class NounChoices {
-	obvious: EmojiNoun = new EmojiNoun();
-	witty: EmojiNoun = new EmojiNoun();
-	static fromJson(json: any): NounChoices {
-		return {
-			obvious: json.obvious_choice,
-			witty: json.witty_choice,
-		}
-	}
-	static WITTY_THRESHOLD = 0.7;
 }

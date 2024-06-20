@@ -4,7 +4,7 @@ interface ChipProps {
 	isSelected?: boolean;
 	isShaking?: boolean;
 	disabled?: boolean;
-	onClick: () => void | undefined;
+	onClick?: () => void | undefined;
 }
 
 export default function Chip(props: ChipProps) {

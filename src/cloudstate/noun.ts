@@ -23,8 +23,19 @@ export class EmojiNoun {
 	];
 }
 
+export class EmojiNounChoices {
+	obvious: EmojiNoun = new EmojiNoun();
+	witty: EmojiNoun = new EmojiNoun();
+	static fromJson(json: any): EmojiNounChoices {
+		return {
+			obvious: json.obvious_choice,
+			witty: json.witty_choice,
+		}
+	}
+	static WITTY_THRESHOLD = 0.7;
+}
+
 export class EmojiNounRes extends EmojiNoun {
 	static id = crypto.randomUUID();
-	
 	isNewToRoom: boolean = false;
 }
