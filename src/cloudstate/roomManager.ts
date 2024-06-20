@@ -17,15 +17,10 @@ export class RoomManagerCS {
 		return roomId;
 	}
 	_newRoomId() {
-		const numAttempts = 10;
 		let roomId;
-		for (let i = 0; i < numAttempts; i++) {
+		do {
 			roomId = generateUsername({useHyphen: true, useRandomNumber: false});
-			if (!this.roomExists(roomId)) {
-				console.log(`${roomId} is new`);
-				return roomId;
-			}
-		}
-		throw Error("Too many attempts to create a unique Room ID.");
+		} while (this.roomExists(roomId));
+		return roomId;
 	}
 }
