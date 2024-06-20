@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { CSSTransition, SwitchTransition, TransitionGroup } from "react-transition-group";
 import Chip from "./chip";
-import "./app.css";
+import "../styles/app.css";
 
 import { useCloud } from "freestyle-sh";
 import type { EmojiNoun } from "../cloudstate/noun";
