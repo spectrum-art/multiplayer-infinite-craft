@@ -6,8 +6,7 @@ import { useCloud } from "freestyle-sh";
 import type { EmojiNoun } from "../cloudstate/noun";
 import type { RoomCS } from "../cloudstate/room";
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
-import { Slide, toast, ToastContainer } from "react-toastify";
-import 'react-toastify/ReactToastify.css';
+import toast, { Toaster } from "react-hot-toast";
 
 interface InitialState {
 	roomId: string;
@@ -93,18 +92,12 @@ function ChipList(props: InitialState) {
 				</p>
 				{hasStarted &&
 					<button className="text-gray-300 hover:text-white transition ml-2" onClick={() => {
+						navigator.clipboard.writeText(props.roomId);
+						toast.dismiss();
 						toast.success('Room ID copied to clipboard!', {
 							position: "bottom-right",
-							autoClose: 1500,
-							hideProgressBar: true,
-							closeOnClick: true,
-							pauseOnHover: true,
-							draggable: true,
-							progress: undefined,
-							theme: "dark",
-							transition: Slide,
+							duration: 2000,
 						});
-						navigator.clipboard.writeText(props.roomId);
 					}}>
 						<svg className="" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
 					</button>}
@@ -126,7 +119,7 @@ function ChipList(props: InitialState) {
 				</TransitionGroup>
 			</div>
 			{isCrafting && <div className="text-center text-md text-gray-300 mt-8">Crafting...</div>}
-			<ToastContainer />
+			<Toaster />
 		</div>
 	);
 }
