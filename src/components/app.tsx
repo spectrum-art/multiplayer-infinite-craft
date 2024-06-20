@@ -85,11 +85,11 @@ function ChipList(props: InitialState) {
 					<div
 						ref={subheaderRef}
 						className="flex flex-row items-center justify-center mt-2 mb-10">
-						<p className="text-center text-gray-300">
+						<p className="text-center text-gray-400">
 							{hasStarted ? props.roomId : "Select any two nouns to craft a new one."}
 						</p>
 						{hasStarted &&
-							<button className="text-gray-300 hover:text-white transition ml-2" onClick={() => {
+							<button className="text-gray-400 hover:text-gray-200 transition ml-2" onClick={() => {
 								navigator.clipboard.writeText(props.roomId);
 								toast.dismiss();
 								toast.success('Room ID copied to clipboard!', {
