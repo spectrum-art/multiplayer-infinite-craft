@@ -9,9 +9,9 @@ import { NounManagerCS } from "./nounManager";
 
 @cloudstate
 export class RoomCS {
-	id = crypto.randomUUID();
-	getId(): string {
-		return this.id;
+	id: string;
+	constructor(id: string) {
+		this.id = id;
 	}
 
 	nouns: EmojiNoun[] = EmojiNoun.STARTING_NOUNS;
