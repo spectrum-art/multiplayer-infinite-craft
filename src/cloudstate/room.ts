@@ -1,11 +1,11 @@
-import { cloudstate, useLocal } from 'freestyle-sh';
-import { EmojiNoun, EmojiNounRes, EmojiNounChoices } from './noun';
-import { NounManagerCS } from './nounManager';
+import { cloudstate, useLocal } from "freestyle-sh";
+import { EmojiNoun, EmojiNounRes, EmojiNounChoices } from "./noun";
+import { NounManagerCS } from "./nounManager";
 
-import Anthropic from '@anthropic-ai/sdk';
-import Prompts from '../prompts/prompts';
-import { getFirstText } from '../helpers/anthropic-msg';
-import { getFirstEmoji } from '../helpers/emoji-strings';
+import Anthropic from "@anthropic-ai/sdk";
+import Prompts from "../prompts/prompts";
+import { getFirstText } from "../helpers/anthropic-msg";
+import { getFirstEmoji } from "../helpers/emoji-strings";
 
 @cloudstate
 export class RoomCS {
@@ -53,11 +53,11 @@ export class RoomCS {
 	static async _generateNoun(comboKey: string): Promise<EmojiNoun> {
 		// Prompt Anthropic for noun choices
 		const nounChoicesMsg = await new Anthropic().messages.create({
-			model: 'claude-3-haiku-20240307',
+			model: "claude-3-haiku-20240307",
 			max_tokens: 200,
 			temperature: 0.5,
 			system: Prompts.GENERATE_NEW_NOUN,
-			messages: [{'role': 'user','content': [{'type': 'text','text': comboKey}]}],
+			messages: [{"role": "user","content": [{"type": "text","text": comboKey}]}],
 		});
 
 		// Randomly choose between obvious and witty noun

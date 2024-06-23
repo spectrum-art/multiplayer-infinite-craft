@@ -1,10 +1,10 @@
-import { cloudstate } from 'freestyle-sh';
-import { RoomCS } from './room';
-import { generateUsername } from 'friendly-username-generator';
+import { cloudstate } from "freestyle-sh";
+import { RoomCS } from "./room";
+import { generateUsername } from "friendly-username-generator";
 
 @cloudstate
 export class RoomManagerCS {
-	static id = 'room-manager' as const;
+	static id = "room-manager" as const;
 
 	roomsMap: Map<string, RoomCS> = new Map();
 	roomExists(roomId: string): boolean {

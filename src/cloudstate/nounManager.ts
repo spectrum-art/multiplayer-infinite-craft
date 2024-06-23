@@ -1,9 +1,9 @@
-import { cloudstate } from 'freestyle-sh';
-import type { EmojiNoun } from './noun';
+import { cloudstate } from "freestyle-sh";
+import type { EmojiNoun } from "./noun";
 
 @cloudstate
 export class NounManagerCS {
-	static id = 'noun-manager' as const;
+	static id = "noun-manager" as const;
 
 	comboKeysMap: Map<string, EmojiNoun> = new Map();
 	addKeyAndNoun(comboKey: string, noun: EmojiNoun) {

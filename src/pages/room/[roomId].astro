@@ -1,18 +1,18 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Game from '../../components/Game';
-import { useCloud } from 'freestyle-sh';
-import { RoomCS } from '../../cloudstate/room';
-import { RoomManagerCS } from '../../cloudstate/roomManager';
-import { EmojiNoun } from '../../cloudstate/noun';
+import Layout from "../../layouts/Layout.astro";
+import Game from "../../components/Game";
+import { useCloud } from "freestyle-sh";
+import { RoomCS } from "../../cloudstate/room";
+import { RoomManagerCS } from "../../cloudstate/roomManager";
+import { EmojiNoun } from "../../cloudstate/noun";
 
 // Get the room ID from the URL
-let roomId = Astro.params.roomId ?? '';
+let roomId = Astro.params.roomId ?? "";
 
 const roomManager = useCloud<typeof RoomManagerCS>(RoomManagerCS.id);
 if (!(await roomManager.roomExists(roomId))) {
-	// Visit index page to create a new room
-	return Astro.redirect('/');
+  // Visit index page to create a new room
+  return Astro.redirect("/");
 }
 
 // Continue with fetching the room
@@ -21,52 +21,52 @@ const roomNouns: EmojiNoun[] = await room.getNouns();
 ---
 
 <Layout title="Multiplayer Infinite Craft - Freestyle Demo">
-	<main class="flex justify-center text-white">
-		<div class="flex flex-col justify-between items-center w-screen h-screen">
-			<div class="flex flex-col items-center">
-				<div class="relative w-screen px-6 mt-8">
-					<a
-						class="absolute left-0 top-0 ml-4 text-slate-500 hover:text-slate-200 transition"
-						href="/"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							class="feather feather-chevron-left"
-						>
-							<polyline points="15 18 9 12 15 6"></polyline>
-						</svg>
-					</a>
-					<h1
-						class="top-0 left-0 right-0 text-xl font-semibold text-center text-white mx-16"
-					>
-						Multiplayer Infinite Craft - <a
-							href="https://freestyle.sh"
-							class="underline">Freestyle</a
-						> Demo
-					</h1>
-				</div>
-				<Game client:load roomId={roomId} nouns={roomNouns} />
-			</div>
-			<p class="text-sm text-gray-500 my-4">
-				Inspired by the <a
-					href="https://neal.fun/infinite-craft/"
-					class="underline">original game</a
-				> created by Neal Agarwal.
-			</p>
-		</div>
-	</main>
+  <main class="flex justify-center text-white">
+    <div class="flex flex-col justify-between items-center w-screen h-screen">
+      <div class="flex flex-col items-center">
+        <div class="relative w-screen px-6 mt-8">
+          <a
+            class="absolute left-0 top-0 ml-4 text-slate-500 hover:text-slate-200 transition"
+            href="/"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="feather feather-chevron-left"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </a>
+          <h1
+            class="top-0 left-0 right-0 text-xl font-semibold text-center text-white mx-16"
+          >
+            Multiplayer Infinite Craft - <a
+              href="https://freestyle.sh"
+              class="underline">Freestyle</a
+            > Demo
+          </h1>
+        </div>
+        <Game client:load roomId={roomId} nouns={roomNouns} />
+      </div>
+      <p class="text-sm text-gray-500 my-4">
+        Inspired by the <a
+          href="https://neal.fun/infinite-craft/"
+          class="underline">original game</a
+        > created by Neal Agarwal.
+      </p>
+    </div>
+  </main>
 </Layout>
 
 <style>
-	body {
-		@apply bg-slate-900;
-	}
+  body {
+    @apply bg-slate-900;
+  }
 </style>
