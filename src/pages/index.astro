@@ -1,32 +1,32 @@
 ---
-import RoomManager from "../components/roomManager";
-import Layout from "../layouts/Layout.astro";
+import RoomManager from '../components/RoomManager';
+import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Multiplayer Infinite Craft - Freestyle Demo">
-  <main>
-    <div class="flex flex-col justify-between items-center h-screen">
-      <div>
-        <h1 class="text-xl font-semibold mx-6 my-8 text-center text-white">
-          Multiplayer Infinite Craft - <a
-            href="https://freestyle.sh"
-            class="underline">Freestyle</a
-          > Demo
-        </h1>
-        <RoomManager client:load />
-      </div>
-      <p class="text-sm text-gray-500 my-4">
-        Inspired by the <a
-          href="https://neal.fun/infinite-craft/"
-          class="underline">original game</a
-        > created by Neal Agarwal.
-      </p>
-    </div>
-  </main>
+	<main>
+		<div class="flex flex-col justify-between items-center h-screen">
+			<div>
+				<h1 class="text-xl font-semibold mx-6 my-8 text-center text-white">
+					Multiplayer Infinite Craft - <a
+						href="https://freestyle.sh"
+						class="underline">Freestyle</a
+					> Demo
+				</h1>
+				<RoomManager client:load />
+			</div>
+			<p class="text-sm text-gray-500 my-4">
+				Inspired by the <a
+					href="https://neal.fun/infinite-craft/"
+					class="underline">original game</a
+				> created by Neal Agarwal.
+			</p>
+		</div>
+	</main>
 </Layout>
 
 <style>
-  body {
-    @apply bg-slate-900;
-  }
+	body {
+		@apply bg-slate-900;
+	}
 </style>

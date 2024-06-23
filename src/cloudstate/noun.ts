@@ -1,9 +1,9 @@
-import { cloudstate } from "freestyle-sh";
+import { cloudstate } from 'freestyle-sh';
 
 @cloudstate
 export class EmojiNoun {
 	static id = crypto.randomUUID();
-	
+
 	text: string = '';
 	emoji: string = '';
 	discovered: boolean = false;
@@ -36,6 +36,5 @@ export class EmojiNounChoices {
 }
 
 export class EmojiNounRes extends EmojiNoun {
-	static id = crypto.randomUUID();
 	isNewToRoom: boolean = false;
 }

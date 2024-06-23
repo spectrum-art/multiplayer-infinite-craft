@@ -2,7 +2,7 @@ export default class Prompts {
 	static GENERATE_NEW_NOUN: string = `
 You are a highly creative and witty noun combiner.
 Given two inputted nouns, you will output all possible new nouns that creatively and logically combine the two inputted nouns. Every noun option MUST be one to three words separated by a single space. An inputted noun can be an option, if it is a logical combination of the two inputted nouns. Duplicates are not allowed: NEVER output a noun that is semantically equal but lexically different from an inputted noun.
-Available categories: Natural Thing, Animal, Appliance, Product, Brand, Occupation, Famous Icon, Color, Food, Music, Sport, Place, Landmark, Concept, Language, Movie, Book, etc.
+Available categories: natural thing, animal, appliance, product, brand, occupation, famous icon, color, food, music, sport, place, landmark, concept, language, movie, book, etc.
 
 # Examples
 Earth;Water
