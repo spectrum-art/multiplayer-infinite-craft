@@ -1,16 +1,21 @@
 # Multiplayer Infinite Craft
 
-A multiplayer version of Infinite Craft built with TypeScript, Astro, React, and Freestyle.
+A multiplayer version of Infinite Craft built with TypeScript, Astro, React, and **[Freestyle](https://freestyle.sh)**.
+
+> [!NOTE]
+> Want to deploy your own version? Jump [here](#deployment).
 
 ## About
 
-This project is a multiplayer adaptation of the popular Infinite Craft game, allowing players to collaboratively discover new elements in shared rooms. It demonstrates full-stack TypeScript development using Freestyle for seamless cloud integration.
+This project is a multiplayer adaptation of the popular Infinite Craft game, allowing players to collaboratively discover new elements in shared rooms. It demonstrates full-stack TypeScript development using **[Freestyle](https://freestyle.sh)** for seamless cloud integration.
 
 ![client-game-craft-noun](https://github.com/kevgug/multiplayer-infinite-craft/assets/37193648/bd752979-d914-427e-8c35-08c9ff105a60)
 
 ## Play Now
 
-You can play the finished game at [https://infinitecraft.freestyle.dev](https://infinitecraft.freestyle.dev). Create a room and invite friends to play together!
+You can play the finished game at [https://infinitecraft.freestyle.dev](https://infinitecraft.freestyle.dev) or [deploy](#deployment) your own version.
+
+Create a room and invite friends to play together!
 
 ## Features
 
@@ -22,7 +27,7 @@ You can play the finished game at [https://infinitecraft.freestyle.dev](https://
 ## Installation
 
 1. Clone this repository
-2. Install dependencies: `npm i`
+2. Install dependencies: `npm install`
 3. Set up your Anthropic API key as described in the [tutorial](https://blog.freestyle.dev/posts/multiplayer-infinite-craft#setup)
 4. Run the development server: `npx freestyle dev`
 
