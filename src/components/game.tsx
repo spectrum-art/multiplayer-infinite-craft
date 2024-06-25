@@ -4,7 +4,7 @@ import "../styles/app.css";
 
 import { EmojiNoun, EmojiNounRes } from "../cloudstate/noun";
 import toast, { Toaster } from "react-hot-toast";
-import Chip from "./Chip";
+import Chip from "./chip";
 import { useCloud } from "freestyle-sh";
 import { RoomCS } from "../cloudstate/room";
 import { QueryClient, QueryClientProvider, useQuery, useMutation } from "@tanstack/react-query";
