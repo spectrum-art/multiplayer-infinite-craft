@@ -25,7 +25,7 @@ Create a room and invite friends to play together!
 - Multiplayer rooms with real-time updates
 - Generative AI for creating new elements
 - Full-stack TypeScript implementation
-- Cloud-based data persistence using Freestyle
+- Cloud-based data persistence using [Freestyle](https://freestyle.sh)
 
 ## Installation
 
