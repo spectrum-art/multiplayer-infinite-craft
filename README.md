@@ -1,12 +1,12 @@
 # Multiplayer Infinite Craft
 
-A multiplayer version of Infinite Craft built with TypeScript, Astro, React, and **[Freestyle](https://freestyle.sh)**.
+A multiplayer version of Infinite Craft built with Astro/React frontend and **[Freestyle](https://freestyle.sh)** backend: full stack pure TypeScript. LLM prompt included.
 
 > [!NOTE]
 > Want to deploy your own version? Jump [here](#deployment).
 
 > [!TIP]
-> To learn how to use Freestyle, we recommend following the official [tutorial](https://blog.freestyle.dev/posts/multiplayer-infinite-craft).
+> To put together the game yourself, and learn Freestyle in the process, we recommend following the official [tutorial](https://blog.freestyle.dev/posts/multiplayer-infinite-craft).
 
 ## About
 
