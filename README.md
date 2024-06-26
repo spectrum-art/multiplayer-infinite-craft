@@ -6,7 +6,7 @@ A multiplayer version of Infinite Craft built with TypeScript, Astro, React, and
 > Want to deploy your own version? Jump [here](#deployment).
 
 > [!TIP]
-> To learn how to use Freestyle, we recommend following the official [tutorial](https://https://blog.freestyle.dev/posts/multiplayer-infinite-craft).
+> To learn how to use Freestyle, we recommend following the official [tutorial](https://blog.freestyle.dev/posts/multiplayer-infinite-craft).
 
 ## About
 
