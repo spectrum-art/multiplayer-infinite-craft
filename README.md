@@ -5,6 +5,9 @@ A multiplayer version of Infinite Craft built with TypeScript, Astro, React, and
 > [!NOTE]
 > Want to deploy your own version? Jump [here](#deployment).
 
+> [!TIP]
+> To learn how to use Freestyle, we recommend following the official [tutorial](https://https://blog.freestyle.dev/posts/multiplayer-infinite-craft).
+
 ## About
 
 This project is a multiplayer adaptation of the popular Infinite Craft game, allowing players to collaboratively discover new elements in shared rooms. It demonstrates full-stack TypeScript development using **[Freestyle](https://freestyle.sh)** for seamless cloud integration.
