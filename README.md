@@ -10,7 +10,7 @@ A multiplayer version of Infinite Craft built with Astro/React frontend and **[F
 
 ## About
 
-This project is a multiplayer adaptation of the popular Infinite Craft game, allowing players to collaboratively discover new elements in shared rooms. It demonstrates full-stack TypeScript development using **[Freestyle](https://freestyle.sh)** for seamless cloud integration.
+This project is a multiplayer adaptation of the popular Infinite Craft game, allowing players to collaboratively discover new elements in shared rooms in real-time. It demonstrates full-stack TypeScript development using **[Freestyle](https://freestyle.sh)** for seamless cloud integration.
 
 ![client-game-craft-noun](https://github.com/kevgug/multiplayer-infinite-craft/assets/37193648/bd752979-d914-427e-8c35-08c9ff105a60)
 
