@@ -35,12 +35,13 @@ Create a room and invite friends to play together!
 
 To deploy your own instance of the game:
 
-1. Login to Freestyle: `npx freestyle login`
-2. Build the project: `npx freestyle build`
-3. Deploy: `npx freestyle deploy`
-4. Follow the prompts to choose a subdomain for your game
+1. Save your Anthropic API key in a `.env` file at the root of the project as `ANTHROPIC_API_KEY`
+2. Login to Freestyle: `npx freestyle login`
+3. Build the project: `npx freestyle build`
+4. Deploy: `npx freestyle deploy`
+5. Follow the prompts to choose a subdomain for your game
 
-For detailed deployment instructions, refer to the [Deploying to the Cloud](https://blog.freestyle.dev/posts/multiplayer-infinite-craft#deploying-to-the-cloud) section of the tutorial.
+For instructions on generating an Anthropic API key, refer to the [Setup](https://blog.freestyle.dev/posts/multiplayer-infinite-craft#setup) section of the tutorial. For detailed deployment instructions, refer to the [Deploying to the Cloud](https://blog.freestyle.dev/posts/multiplayer-infinite-craft#deploying-to-the-cloud) section of the tutorial.
 
 ## Tutorial
 
