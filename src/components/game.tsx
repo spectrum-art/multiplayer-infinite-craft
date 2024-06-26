@@ -3,8 +3,8 @@ import { CSSTransition, SwitchTransition, TransitionGroup } from "react-transiti
 import "../styles/app.css";
 
 import { EmojiNoun, EmojiNounRes } from "../cloudstate/noun";
-import toast, { Toaster } from "react-hot-toast";
-import Chip from "./chip";
+import { Toaster, toast } from "sonner";
+import Chip from "./Chip";
 import { useCloud } from "freestyle-sh";
 import { RoomCS } from "../cloudstate/room";
 import { QueryClient, QueryClientProvider, useQuery, useMutation } from "@tanstack/react-query";
@@ -85,9 +85,7 @@ function ChipList(props: InitialState) {
 						{hasStarted &&
 							<button className="text-gray-400 hover:text-gray-200 transition ml-2" onClick={() => {
 								navigator.clipboard.writeText(props.roomId);
-								toast.dismiss();
 								toast.success("Room ID copied to clipboard!", {
-									position: "bottom-right",
 									duration: 2000,
 								});
 							}}>
@@ -113,7 +111,7 @@ function ChipList(props: InitialState) {
 				</TransitionGroup>
 			</div>
 			{isCrafting && <div className="text-center text-md text-gray-300 mt-8">Crafting...</div>}
-			<Toaster />
+			<Toaster richColors position="bottom-right" />
 		</div>
 	);
 }

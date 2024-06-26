@@ -2,7 +2,7 @@ import { useCloud } from "freestyle-sh";
 import { RoomManagerCS } from "../cloudstate/roomManager";
 import { useState } from "react";
 import { navigate } from "astro:transitions/client";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "sonner";
 
 export default function RoomManager() {
 	const [textInput, setTextInput] = useState("");
@@ -14,7 +14,6 @@ export default function RoomManager() {
 		}
 		if (!(await roomManager.roomExists(roomId))) {
 			toast.error(`Room "${roomId}" does not exist`, {
-				position: "bottom-right",
 				duration: 2000,
 			});
 			return;
@@ -60,7 +59,7 @@ export default function RoomManager() {
 					Create Room
 				</button>
 			</div>
-			<Toaster />
+			<Toaster richColors position="bottom-right" />
 		</div>
 	);
 }
