@@ -13,7 +13,7 @@ export default function RoomManager() {
 			return;
 		}
 		if (!(await roomManager.roomExists(roomId))) {
-			toast.error(`Room "${roomId}" does not exist`, {
+			toast.error(`Room "${roomId}" doesn't exist`, {
 				duration: 2000,
 			});
 			return;
