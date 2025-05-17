@@ -2,7 +2,6 @@ import { cloudstate, useLocal } from "freestyle-sh";
 import { EmojiNoun, EmojiNounRes, EmojiNounChoices } from "./noun";
 import { NounManagerCS } from "./nounManager";
 
-import ollama from "ollama";
 import Prompts from "../prompts/prompts";
 import { getFirstEmoji } from "../helpers/emoji-strings";
 
@@ -50,18 +49,22 @@ export class RoomCS {
 		return {...outputNoun, isNewToRoom: isNewToRoom};
 	}
 	static async _generateNoun(comboKey: string): Promise<EmojiNoun> {
-		// Prompt local Ollama model for noun choices
-		const chatResp = await ollama.chat({
-		  model: process.env.OLLAMA_MODEL_NAME!,
-		  messages: [
-		    { role: "system", content: Prompts.GENERATE_NEW_NOUN },
-		    { role: "user",   content: comboKey },
-		  ],
-		  stream: false,
-		});
-		
-		// Extract the text and parse
-		const text = (chatResp.choices?.[0]?.message.content ?? chatResp.message.content).trim();
+		const res = await fetch(
+		  `${process.env.OLLAMA_HOST || "http://localhost:11434"}/chat/completions`,
+		  {
+		    method: "POST",
+		    headers: { "Content-Type": "application/json" },
+		    body: JSON.stringify({
+		      model: process.env.OLLAMA_MODEL_NAME,
+		      messages: [
+		        { role: "system", content: Prompts.GENERATE_NEW_NOUN },
+		        { role: "user",   content: comboKey },
+		      ],
+		    }),
+		  }
+		);
+		const { choices } = await res.json();
+		const text = choices[0].message.content.trim();
 		const nounChoices = EmojiNounChoices.fromJson(JSON.parse(text));
 		const noun = Math.random() < EmojiNounChoices.WITTY_THRESHOLD ? nounChoices.obvious : nounChoices.witty;
 		
