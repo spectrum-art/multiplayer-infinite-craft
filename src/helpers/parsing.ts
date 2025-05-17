@@ -1,42 +1,52 @@
 /**
  * Robustly parse model output containing JSON with potential formatting issues.
- * Strips prefixes/suffixes, normalizes quotes, removes comments/trailing commas,
- * wraps unquoted emoji values, and ensures keys are quoted before parsing.
+ *
+ * Steps:
+ * 1. Extract first JSON-like chunk (object or array).
+ * 2. Normalize smart quotes, remove BOM & control chars.
+ * 3. Remove JS-style comments.
+ * 4. Strip trailing commas before } or ].
+ * 5. Remove stray backslashes before braces/quotes.
+ * 6. Convert shorthand property markers {key} to proper JSON keys.
+ * 7. Remove prefixes and suffixes outside of the JSON chunk.
+ * 8. Wrap unquoted emoji values in quotes.
  */
 export function parseModelOutput(raw: string): any {
-  let text = raw.trim();
+  // 1. Trim and extract the core JSON-like substring
+  const trimmed = raw.trim();
+  const jsonMatch = trimmed.match(/(\[?[\s\S]*?\]?|\{[\s\S]*?\})/);
+  let text = jsonMatch ? jsonMatch[0] : trimmed;
 
-  // Extract the first JSON substring (array or object)
-  const match = text.match(/([\[{][\s\S]*[\]}])/);
-  text = match ? match[1] : text;
+  // 2. Normalize Unicode BOM, smart quotes, control chars
+  text = text
+    .replace(/\uFEFF/g, '')                // BOM
+    .replace(/[‘’]/g, "'")                // smart single quotes
+    .replace(/[“”]/g, '"')                // smart double quotes
+    .replace(/[\x00-\x1F\x7F]/g, '');    // control chars
 
-  // Normalize smart quotes
-  text = text.replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
+  // 3. Remove JavaScript/CSS style comments
+  text = text.replace(/\/\/.*(?=[\n\r])|\/\*[\s\S]*?\*\//g, '');
 
-  // Strip BOM if present
-  text = text.replace(/^\uFEFF/, '');
+  // 4. Strip trailing commas before } or ]
+  text = text.replace(/,\s*(?=[}\]])/g, '');
 
-  // Remove control characters
-  text = text.replace(/[\u0000-\u001F]+/g, '');
+  // 5. Remove stray backslashes before braces or quotes
+  text = text.replace(/\\(?=[{}\[\]"])/g, '');
 
-  // Remove JavaScript-style comments
-  text = text.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+  // 6. Convert shorthand {key} markers to "key":
+  text = text.replace(/\{\s*([a-zA-Z0-9_]+)\s*\}/g, '"$1":');
 
-  // Remove trailing commas before } or ]
-  text = text.replace(/,(?=\s*?[\}\]])/g, '');
+  // 7. Ensure it's a single JSON object or array
+  if (!text.startsWith('{') && !text.startsWith('[')) {
+    text = `{${text}}`;
+  }
 
-  // Fix stray colon before emoji labels
-  text = text.replace(/"emoji"\s*:\s*":/g, '"emoji":"');
-
-  // Wrap unquoted emoji values in quotes
+  // 8. Wrap unquoted emoji values in quotes (e.g., "emoji": 🙏)
   text = text.replace(
-    /("emoji"\s*:\s*)([^\s",\}\]]+)/g,
+    /("emoji"\s*:\s*)([\p{Emoji}_+\-\u2600-\u27BF]+)/gu,
     '$1"$2"'
   );
 
-  // Ensure object keys are quoted
-  text = text.replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":');
-
-  // Parse cleaned JSON text
+  // Final parse
   return JSON.parse(text);
 }
