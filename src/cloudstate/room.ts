@@ -2,9 +2,8 @@ import { cloudstate, useLocal } from "freestyle-sh";
 import { EmojiNoun, EmojiNounRes, EmojiNounChoices } from "./noun";
 import { NounManagerCS } from "./nounManager";
 
-import Anthropic from "@anthropic-ai/sdk";
+import ollama from "ollama";
 import Prompts from "../prompts/prompts";
-import { getFirstText } from "../helpers/anthropic-msg";
 import { getFirstEmoji } from "../helpers/emoji-strings";
 
 @cloudstate
@@ -51,17 +50,19 @@ export class RoomCS {
 		return {...outputNoun, isNewToRoom: isNewToRoom};
 	}
 	static async _generateNoun(comboKey: string): Promise<EmojiNoun> {
-		// Prompt Anthropic for noun choices
-		const nounChoicesMsg = await new Anthropic().messages.create({
-			model: "claude-3-haiku-20240307",
-			max_tokens: 200,
-			temperature: 0.5,
-			system: Prompts.GENERATE_NEW_NOUN,
-			messages: [{"role": "user","content": [{"type": "text","text": comboKey}]}],
+		// Prompt local Ollama model for noun choices
+		const chatResp = await ollama.chat({
+		  model: process.env.OLLAMA_MODEL_NAME!,
+		  messages: [
+		    { role: "system", content: Prompts.GENERATE_NEW_NOUN },
+		    { role: "user",   content: comboKey },
+		  ],
+		  stream: false,
 		});
-
-		// Randomly choose between obvious and witty noun
-		const nounChoices = EmojiNounChoices.fromJson(JSON.parse(getFirstText(nounChoicesMsg)));
+		
+		// Extract the text and parse
+		const text = (chatResp.choices?.[0]?.message.content ?? chatResp.message.content).trim();
+		const nounChoices = EmojiNounChoices.fromJson(JSON.parse(text));
 		const noun = Math.random() < EmojiNounChoices.WITTY_THRESHOLD ? nounChoices.obvious : nounChoices.witty;
 		
 		// Ensure a single emoji
