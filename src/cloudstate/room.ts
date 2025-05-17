@@ -4,6 +4,7 @@ import { NounManagerCS } from "./nounManager";
 
 import Prompts from "../prompts/prompts";
 import { getFirstEmoji } from "../helpers/emoji-strings";
+import { parseModelOutput } from '../helpers/parsing';
 
 @cloudstate
 export class RoomCS {
@@ -67,17 +68,7 @@ export class RoomCS {
 		const { choices } = await res.json();
 		const raw = choices[0].message.content;
 		console.log("OLLAMA raw:", raw);
-		const text = raw.trim();
-		const match = text.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
-		let jsonText = match ? match[1] : text;
-		try {
-			//first attempt
-			var parsed = JSON.parse(jsonText);
-		} catch {
-			// quick-fix common typos
-			jsonText = jsonText.replace(/"emoji"\s*:\s*":/g, '"emoji":"');
-			parsed = JSON.parse(jsonText);
-		}
+		const parsed = parseModelOutput(raw);
 		const nounChoices = EmojiNounChoices.fromJson(parsed);
 		const noun = Math.random() < EmojiNounChoices.WITTY_THRESHOLD ? nounChoices.obvious : nounChoices.witty;
 		
