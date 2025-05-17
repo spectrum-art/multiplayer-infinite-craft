@@ -7,7 +7,7 @@ export default defineConfig({
   deploy: {
     cloudstate: {
       envVars: {
-        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+       OLLAMA_MODEL_NAME: process.env.OLLAMA_MODEL_NAME,
       },
     },
   },
