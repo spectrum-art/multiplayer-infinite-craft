@@ -50,7 +50,7 @@ export class RoomCS {
 	}
 	static async _generateNoun(comboKey: string): Promise<EmojiNoun> {
 		const res = await fetch(
-		  `${process.env.OLLAMA_HOST || "http://localhost:11434"}/chat/completions`,
+		  `${process.env.OLLAMA_HOST || "http://localhost:11434"}/v1/chat/completions`,
 		  {
 		    method: "POST",
 		    headers: { "Content-Type": "application/json" },
@@ -60,12 +60,25 @@ export class RoomCS {
 		        { role: "system", content: Prompts.GENERATE_NEW_NOUN },
 		        { role: "user",   content: comboKey },
 		      ],
+		      stream: false,
 		    }),
 		  }
 		);
 		const { choices } = await res.json();
-		const text = choices[0].message.content.trim();
-		const nounChoices = EmojiNounChoices.fromJson(JSON.parse(text));
+		const raw = choices[0].message.content;
+		console.log("OLLAMA raw:", raw);
+		const text = raw.trim();
+		const match = text.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+		let jsonText = match ? match[1] : text;
+		try {
+			//first attempt
+			var parsed = JSON.parse(jsonText);
+		} catch {
+			// quick-fix common typos
+			jsonText = jsonText.replace(/"emoji"\s*:\s*":/g, '"emoji":"');
+			parsed = JSON.parse(jsonText);
+		}
+		const nounChoices = EmojiNounChoices.fromJson(parsed);
 		const noun = Math.random() < EmojiNounChoices.WITTY_THRESHOLD ? nounChoices.obvious : nounChoices.witty;
 		
 		// Ensure a single emoji

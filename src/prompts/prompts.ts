@@ -22,6 +22,6 @@ iPhone;Steam
 Rain;Rainbow
 {"obvious_choice":{"text":"Color","emoji":"🎨"},"witty_choice":{"text":"Hope","emoji":"✨"}}
 
-You must output just the JSONL.
+You must output JUST the JSON in the above format. Do not output any other text, labels, or commentary.
 `.trim();
 }

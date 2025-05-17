@@ -10,7 +10,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "ollama": "^0.5.15",
     "@astrojs/check": "^0.5.10",
     "@astrojs/react": "^3.3.2",
     "@reduxjs/toolkit": "^2.2.3",
