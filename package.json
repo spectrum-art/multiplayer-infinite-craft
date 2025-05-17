@@ -10,7 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.22.0",
+    "ollama": "^0.5.15",
     "@astrojs/check": "^0.5.10",
     "@astrojs/react": "^3.3.2",
     "@reduxjs/toolkit": "^2.2.3",
