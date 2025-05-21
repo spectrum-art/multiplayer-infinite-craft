@@ -1,6 +1,17 @@
 /**
  * Robustly parse model output containing JSON with potential formatting issues.
- * Now handles: stray text, single quotes, unescaped quotes, missing braces, and always returns a consistent object.
+ *
+ * Steps:
+ * 1. Extract the substring between the first { or [ and its matching } or ].
+ * 2. Normalize BOM, smart quotes, and control chars.
+ * 3. Remove JS/CSS comments.
+ * 4. Strip trailing commas before } or ].
+ * 5. Remove stray backslashes not part of unicode escapes.
+ * 6. Convert shorthand {key} markers into proper JSON keys.
+ * 7. Wrap unquoted emoji values in quotes.
+ * 8. Repair common typos (stray colons, missing quotes) in emoji fields.
+ * 9. Parse JSON.
+ * 10. Normalize top-level keys and sub-keys to expected schema.
  */
 export function parseModelOutput(raw: string): any {
   let text = raw;
