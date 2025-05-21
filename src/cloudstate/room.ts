@@ -44,7 +44,9 @@ export class RoomCS {
 		if (!res.ok) throw new Error(`Ollama server error: ${res.status} ${res.statusText}. Is Ollama running at ${process.env.OLLAMA_HOST || "http://localhost:11434"}?`);
 		const data = await res.json();
 		if (!data.choices?.[0]?.message?.content) throw new Error(`Unexpected Ollama response: ${JSON.stringify(data)}`);
-		const parsed = parseModelOutput(data.choices[0].message.content);
+		const raw = data.choices[0].message.content;
+		console.log('OLLAMA RAW OUTPUT:', raw); // Debug: log the raw LLM output
+		const parsed = parseModelOutput(raw);
 		const { obvious, witty } = EmojiNounChoices.fromJson(parsed);
 		const noun = Math.random() < EmojiNounChoices.WITTY_THRESHOLD ? obvious : witty;
 		noun.emoji = getFirstEmoji(noun.emoji);
