@@ -4,22 +4,18 @@ import type { EmojiNoun } from "./noun";
 @cloudstate
 export class NounManagerCS {
 	static id = "noun-manager" as const;
-
-	comboKeysMap: Map<string, EmojiNoun> = new Map();
+	comboKeysMap = new Map<string, EmojiNoun>();
 	addKeyAndNoun(comboKey: string, noun: EmojiNoun) {
 		this.comboKeysMap.set(comboKey, noun);
 	}
-	didTryCombo(comboKey: string): boolean {
+	didTryCombo(comboKey: string) {
 		return this.comboKeysMap.has(comboKey);
 	}
-	getNoun(comboKey: string): EmojiNoun {
-		// Return a copy to prevent mutation
-		return {...this.comboKeysMap.get(comboKey)!};
+	getNoun(comboKey: string) {
+		const noun = this.comboKeysMap.get(comboKey);
+		return noun ? { ...noun } : undefined!;
 	}
-	hasNoun(noun: EmojiNoun): boolean {
-		if (this.comboKeysMap.size === 0) {
-			return false;
-		}
+	hasNoun(noun: EmojiNoun) {
 		return Array.from(this.comboKeysMap.values()).some(n => n.text === noun.text);
 	}
 }

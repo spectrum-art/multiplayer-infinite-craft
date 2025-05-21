@@ -7,7 +7,8 @@ export default defineConfig({
   deploy: {
     cloudstate: {
       envVars: {
-       OLLAMA_MODEL_NAME: process.env.OLLAMA_MODEL_NAME,
+        OLLAMA_MODEL_NAME: "phi3:mini",
+        OLLAMA_HOST: "http://localhost:11434"
       },
     },
   },

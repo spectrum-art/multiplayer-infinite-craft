@@ -5,22 +5,16 @@ import { generateUsername } from "friendly-username-generator";
 @cloudstate
 export class RoomManagerCS {
 	static id = "room-manager" as const;
-
-	roomsMap: Map<string, RoomCS> = new Map();
-	roomExists(roomId: string): boolean {
+	roomsMap = new Map<string, RoomCS>();
+	roomExists(roomId: string) {
 		return this.roomsMap.has(roomId);
 	}
-	createRoom(): string {
-		const roomId = this._generateRoomId();
-		const room = new RoomCS(roomId);
-		this.roomsMap.set(roomId, room);
-		return roomId;
-	}
-	_generateRoomId(): string {
+	createRoom() {
 		let roomId;
 		do {
-			roomId = generateUsername({useHyphen: true, useRandomNumber: false});
+			roomId = generateUsername({ useHyphen: true, useRandomNumber: false });
 		} while (this.roomExists(roomId));
+		this.roomsMap.set(roomId, new RoomCS(roomId));
 		return roomId;
 	}
 }

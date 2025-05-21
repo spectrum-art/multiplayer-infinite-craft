@@ -10,7 +10,7 @@ A multiplayer version of Infinite Craft built with Astro/React frontend and **[F
 
 ## About
 
-This project is a multiplayer adaptation of the popular Infinite Craft game, allowing players to collaboratively discover new elements in shared rooms in real-time. It demonstrates full-stack TypeScript development using **[Freestyle](https://freestyle.sh)** for seamless cloud integration.
+This project is a multiplayer adaptation of the popular Infinite Craft game, allowing players to collaboratively discover new elements in shared rooms in real-time. It demonstrates full-stack TypeScript development using **[Freestyle](https://freestyle.sh)** for seamless cloud integration and local LLM inference via Ollama.
 
 ![client-game-craft-noun](https://github.com/kevgug/multiplayer-infinite-craft/assets/37193648/bd752979-d914-427e-8c35-08c9ff105a60)
 
@@ -23,7 +23,7 @@ Create a room and invite friends to play together!
 ## Features
 
 - Multiplayer rooms with real-time updates
-- Generative AI for creating new elements
+- Generative AI for creating new elements (local LLM via Ollama)
 - Full-stack TypeScript implementation
 - Cloud-based data persistence using [Freestyle](https://freestyle.sh)
 
@@ -31,20 +31,27 @@ Create a room and invite friends to play together!
 
 1. Clone this repository
 2. Install dependencies: `npm install`
-3. Set up your Anthropic API key as described in the [tutorial](https://blog.freestyle.dev/posts/multiplayer-infinite-craft#setup)
+3. Install and run [Ollama](https://ollama.com/) locally (see below)
 4. Run the development server: `npx freestyle dev`
+
+### Ollama Setup
+
+- Download and install Ollama from [https://ollama.com/](https://ollama.com/)
+- Pull a supported model (e.g. `ollama pull phi3:mini`)
+- Ensure Ollama is running locally (default: `http://localhost:11434`)
+- You can change the model in `.env` or `freestyle.config.ts` if desired
 
 ## Deployment
 
 To deploy your own instance of the game:
 
-1. Save your Anthropic API key in a `.env` file at the root of the project as `ANTHROPIC_API_KEY`
+1. Ensure your deployment environment can access a running Ollama server (local or remote)
 2. Login to Freestyle: `npx freestyle login`
 3. Build the project: `npx freestyle build`
 4. Deploy: `npx freestyle deploy`
 5. Follow the prompts to choose a subdomain for your game
 
-For instructions on generating an Anthropic API key, refer to the [Setup](https://blog.freestyle.dev/posts/multiplayer-infinite-craft#setup) section of the tutorial. For detailed deployment instructions, refer to the [Deploying to the Cloud](https://blog.freestyle.dev/posts/multiplayer-infinite-craft#deploying-to-the-cloud) section of the tutorial.
+> **Note:** Anthropic and other cloud-based LLMs are no longer supported. All inference is performed locally via Ollama.
 
 ## Tutorial
 
