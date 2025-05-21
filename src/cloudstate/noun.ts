@@ -21,7 +21,10 @@ export class EmojiNounChoices {
 	obvious = new EmojiNoun();
 	witty = new EmojiNoun();
 	static fromJson(json: any) {
-		return { obvious: json.obvious, witty: json.witty };
+		return {
+			obvious: json.obvious || json.obvious_choice,
+			witty: json.witty || json.witty_choice,
+		};
 	}
 	static WITTY_THRESHOLD = 0.7;
 }
